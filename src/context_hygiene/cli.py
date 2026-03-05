@@ -54,6 +54,78 @@ def _check_audit_quota() -> None:
         store.close()
 
 
+def _get_llm_provider():
+    """Get the configured LLM provider."""
+    from context_hygiene.config import load_config
+
+    config = load_config()
+    provider_name = config.get("llm_provider", "ollama")
+
+    if provider_name == "anthropic":
+        from context_hygiene.llm.anthropic import AnthropicProvider
+
+        return AnthropicProvider(model=config.get("anthropic_model", "claude-sonnet-4-6"))
+
+    from context_hygiene.llm.ollama import OllamaProvider
+
+    return OllamaProvider(
+        model=config.get("ollama_model", "llama3.2"),
+        base_url=config.get("ollama_url", "http://localhost:11434"),
+    )
+
+
+def _run_deep_analysis(file_path: str) -> HygieneReport:
+    """Run LLM-powered deep analysis (Pro feature)."""
+    from context_hygiene.analyzers.deep import (
+        compression_deep,
+        contradictions_deep,
+        deadweight_deep,
+        staleness_deep,
+    )
+
+    info = get_license()
+    if not info.is_pro:
+        raise LicenseError(
+            "'deep analysis' requires a Pro license. "
+            "Set CONTEXT_HYGIENE_LICENSE environment variable."
+        )
+
+    provider = _get_llm_provider()
+    segments = parse_file(Path(file_path))
+    if not segments:
+        return HygieneReport(
+            file_path=file_path,
+            analyzed_at=datetime.now(timezone.utc),
+            mode=AnalysisMode.DEEP,
+        )
+
+    staleness = staleness_deep(segments, provider)
+    contras = contradictions_deep(segments, provider)
+    dead = deadweight_deep(segments, provider)
+    comp = compression_deep(segments, provider)
+
+    total_tokens = sum(s.token_estimate for s in segments)
+    tokens_recoverable = sum(d.tokens_recoverable for d in dead)
+    tokens_recoverable += sum(c.savings_tokens for c in comp)
+    avg_staleness = sum(s.score for s in staleness) / len(staleness) if staleness else 0.0
+
+    report = HygieneReport(
+        file_path=file_path,
+        total_segments=len(segments),
+        total_tokens=total_tokens,
+        staleness_score=round(avg_staleness, 3),
+        staleness_results=staleness,
+        contradictions=contras,
+        deadweight=dead,
+        compression_candidates=comp,
+        tokens_recoverable=tokens_recoverable,
+        analyzed_at=datetime.now(timezone.utc),
+        mode=AnalysisMode.DEEP,
+    )
+    report.grade = report.compute_grade()
+    return report
+
+
 def _run_analysis(file_path: str) -> HygieneReport:
     """Run full fast analysis on a file."""
     segments = parse_file(Path(file_path))
@@ -95,11 +167,12 @@ def _run_analysis(file_path: str) -> HygieneReport:
 def audit(
     file: str = typer.Argument(..., help="Conversation file to audit"),
     output_json: bool = typer.Option(False, "--json", help="Output as JSON"),
+    deep: bool = typer.Option(False, "--deep", help="Use LLM for deep analysis (Pro)"),
 ) -> None:
     """Full hygiene audit: staleness + contradictions + deadweight + compression."""
     try:
         _check_audit_quota()
-        report = _run_analysis(file)
+        report = _run_deep_analysis(file) if deep else _run_analysis(file)
 
         # Save to store
         store = _get_store()
@@ -215,6 +288,59 @@ def status() -> None:
 
 
 @app.command()
+def clean(
+    file: str = typer.Argument(..., help="Conversation file to clean"),
+    output: str = typer.Option(None, "--output", "-o", help="Output file path"),
+    dry_run: bool = typer.Option(True, "--dry-run/--apply", help="Preview only"),
+) -> None:
+    """Auto-prune deadweight and stale segments."""
+    try:
+        from context_hygiene.cleaner import (
+            build_pruning_plan,
+            segments_to_markdown,
+        )
+
+        report = _run_analysis(file)
+        plan = build_pruning_plan(report, file)
+
+        console.print(plan.summary())
+
+        if dry_run:
+            console.print("\n[dim]Use --apply to write cleaned output.[/dim]")
+            return
+
+        cleaned = plan.apply()
+        md = segments_to_markdown(cleaned)
+
+        out_path = output or _default_output_path(file)
+        Path(out_path).write_text(md, encoding="utf-8")
+        console.print(f"\n[green]Cleaned output written to {out_path}[/green]")
+    except ContextHygieneError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(1) from e
+
+
+@app.command()
+def watch(
+    directory: str = typer.Argument(".", help="Directory to watch"),
+) -> None:
+    """Live file monitoring with auto-scoring (Pro)."""
+    try:
+        from context_hygiene.watcher import watch_directory
+
+        watch_directory(directory)
+    except ContextHygieneError as e:
+        console.print(f"[red]Error:[/red] {e}")
+        raise typer.Exit(1) from e
+
+
+@app.command()
 def version() -> None:
     """Show version."""
     console.print(f"ctx-hygiene {__version__}")
+
+
+def _default_output_path(file_path: str) -> str:
+    """Generate default output path: file.cleaned.md."""
+    p = Path(file_path)
+    return str(p.parent / f"{p.stem}.cleaned{p.suffix}")
