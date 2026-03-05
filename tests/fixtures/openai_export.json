@@ -1,0 +1,25 @@
+[
+  {
+    "title": "Python Help",
+    "mapping": {
+      "node1": {
+        "message": {
+          "author": {"role": "user"},
+          "content": {"parts": ["What is a decorator in Python?"]}
+        }
+      },
+      "node2": {
+        "message": {
+          "author": {"role": "assistant"},
+          "content": {"parts": ["A decorator is a function that takes another function as input and extends its behavior without modifying it. Here's a simple example:\n\n```python\ndef my_decorator(func):\n    def wrapper(*args, **kwargs):\n        print('Before')\n        result = func(*args, **kwargs)\n        print('After')\n        return result\n    return wrapper\n\n@my_decorator\ndef hello():\n    print('Hello!')\n```"]}
+        }
+      },
+      "node3": {
+        "message": {
+          "author": {"role": "user"},
+          "content": {"parts": ["thanks"]}
+        }
+      }
+    }
+  }
+]

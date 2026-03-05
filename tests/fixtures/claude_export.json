@@ -1,0 +1,28 @@
+{
+  "chat_messages": [
+    {
+      "sender": "human",
+      "text": "Help me write a Python function to calculate fibonacci numbers."
+    },
+    {
+      "sender": "assistant",
+      "text": "Here's a recursive fibonacci function:\n\n```python\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)\n```\n\nNote: This has exponential time complexity O(2^n)."
+    },
+    {
+      "sender": "human",
+      "text": "That's too slow. Can you make it faster?"
+    },
+    {
+      "sender": "assistant",
+      "text": "Sure! Here's an iterative version with O(n) time complexity:\n\n```python\ndef fibonacci(n):\n    if n <= 1:\n        return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b\n```"
+    },
+    {
+      "sender": "human",
+      "text": "ok"
+    },
+    {
+      "sender": "assistant",
+      "text": "Let me know if you need anything else!"
+    }
+  ]
+}

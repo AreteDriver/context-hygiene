@@ -1,0 +1,11 @@
+title = "context-hygiene gitleaks config"
+
+[allowlist]
+  description = "Allow test license key salts and fixture data"
+  regexTarget = "match"
+  regexes = [
+    '''context-hygiene-v1''',
+  ]
+  paths = [
+    '''tests/.*''',
+  ]
