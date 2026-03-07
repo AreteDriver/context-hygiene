@@ -110,11 +110,7 @@ class TestContradictionsDeep:
 class TestDeadweightDeep:
     def test_parses_response(self):
         response = json.dumps(
-            {
-                "deadweight": [
-                    {"segment_index": 1, "reason": "filler", "tokens_recoverable": 15}
-                ]
-            }
+            {"deadweight": [{"segment_index": 1, "reason": "filler", "tokens_recoverable": 15}]}
         )
         provider = _mock_provider(response)
         results = deadweight_deep([_seg(0), _seg(1)], provider)
