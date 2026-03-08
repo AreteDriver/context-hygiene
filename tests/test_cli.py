@@ -138,6 +138,55 @@ class TestStatus:
             assert "0.2.0" in result.output
 
 
+class TestStats:
+    def test_disabled(self):
+        with patch.dict("os.environ", {}, clear=True):
+            result = runner.invoke(app, ["stats"])
+            assert result.exit_code == 0
+            assert "disabled" in result.output.lower()
+
+    def test_no_data(self, tmp_config_dir: Path):
+        with patch.dict(
+            "os.environ",
+            {"CONTEXT_HYGIENE_TELEMETRY": "1", "CONTEXT_HYGIENE_DIR": str(tmp_config_dir)},
+        ):
+            result = runner.invoke(app, ["stats"])
+            assert result.exit_code == 0
+            assert "No telemetry data" in result.output
+
+    def test_with_data_table(self, tmp_config_dir: Path):
+        from context_hygiene.telemetry import TelemetryStore
+
+        db = tmp_config_dir / "telemetry.db"
+        store = TelemetryStore(db)
+        store.record("command", "audit")
+        store.record("pro_gate", "deep analysis")
+        store.close()
+        with patch.dict(
+            "os.environ",
+            {"CONTEXT_HYGIENE_TELEMETRY": "1", "CONTEXT_HYGIENE_DIR": str(tmp_config_dir)},
+        ):
+            result = runner.invoke(app, ["stats"])
+            assert result.exit_code == 0
+            assert "Telemetry Overview" in result.output
+            assert "audit" in result.output
+
+    def test_with_data_json(self, tmp_config_dir: Path):
+        from context_hygiene.telemetry import TelemetryStore
+
+        db = tmp_config_dir / "telemetry.db"
+        store = TelemetryStore(db)
+        store.record("command", "audit")
+        store.close()
+        with patch.dict(
+            "os.environ",
+            {"CONTEXT_HYGIENE_TELEMETRY": "1", "CONTEXT_HYGIENE_DIR": str(tmp_config_dir)},
+        ):
+            result = runner.invoke(app, ["stats", "--json"])
+            assert result.exit_code == 0
+            assert "total_events" in result.output
+
+
 class TestNoArgs:
     def test_help_shown(self):
         result = runner.invoke(app, [])
