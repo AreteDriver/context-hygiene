@@ -17,7 +17,7 @@ class TestVersion:
     def test_version_output(self):
         result = runner.invoke(app, ["version"])
         assert result.exit_code == 0
-        assert "0.1.0" in result.output
+        assert "0.2.0" in result.output
 
 
 class TestScore:
@@ -135,7 +135,7 @@ class TestStatus:
     def test_shows_version(self, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
             result = runner.invoke(app, ["status"])
-            assert "0.1.0" in result.output
+            assert "0.2.0" in result.output
 
 
 class TestNoArgs:
