@@ -17,6 +17,9 @@ def require_pro(feature: str):
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             info = get_license()
             if info.tier != Tier.PRO:
+                from context_hygiene.telemetry import track_pro_gate
+
+                track_pro_gate(feature)
                 raise LicenseError(
                     f"'{feature}' requires a Pro license. Set {_ENV_VAR} environment variable."
                 )

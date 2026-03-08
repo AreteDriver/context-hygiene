@@ -24,6 +24,7 @@ from context_hygiene.models import AnalysisMode, HygieneReport
 from context_hygiene.parsers.detect import parse_file
 from context_hygiene.reporter import format_report_json, format_report_rich
 from context_hygiene.store import AuditStore
+from context_hygiene.telemetry import track_command, track_pro_gate
 
 app = typer.Typer(
     name="ctx-hygiene",
@@ -85,6 +86,7 @@ def _run_deep_analysis(file_path: str) -> HygieneReport:
 
     info = get_license()
     if not info.is_pro:
+        track_pro_gate("deep analysis")
         raise LicenseError(
             "'deep analysis' requires a Pro license. "
             "Set CONTEXT_HYGIENE_LICENSE environment variable."
@@ -170,6 +172,7 @@ def audit(
     deep: bool = typer.Option(False, "--deep", help="Use LLM for deep analysis (Pro)"),
 ) -> None:
     """Full hygiene audit: staleness + contradictions + deadweight + compression."""
+    track_command("audit")
     try:
         _check_audit_quota()
         report = _run_deep_analysis(file) if deep else _run_analysis(file)
@@ -195,6 +198,7 @@ def score(
     file: str = typer.Argument(..., help="Conversation file to score"),
 ) -> None:
     """Quick staleness score (heuristic, no LLM, unlimited)."""
+    track_command("score")
     try:
         segments = parse_file(Path(file))
         if not segments:
@@ -233,6 +237,7 @@ def history(
     limit: int = typer.Option(20, "--limit", "-n", help="Number of entries"),
 ) -> None:
     """Show past audit summaries."""
+    track_command("history")
     store = _get_store()
     try:
         audits = store.list_audits(limit)
@@ -270,6 +275,7 @@ def history(
 @app.command()
 def status() -> None:
     """Show license, provider config, and audit count."""
+    track_command("status")
     info = get_license()
     config = load_config()
     store = _get_store()
@@ -294,6 +300,7 @@ def clean(
     dry_run: bool = typer.Option(True, "--dry-run/--apply", help="Preview only"),
 ) -> None:
     """Auto-prune deadweight and stale segments."""
+    track_command("clean")
     try:
         from context_hygiene.cleaner import (
             build_pruning_plan,
@@ -325,6 +332,7 @@ def watch(
     directory: str = typer.Argument(".", help="Directory to watch"),
 ) -> None:
     """Live file monitoring with auto-scoring (Pro)."""
+    track_command("watch")
     try:
         from context_hygiene.watcher import watch_directory
 
@@ -337,7 +345,84 @@ def watch(
 @app.command()
 def version() -> None:
     """Show version."""
+    track_command("version")
     console.print(f"ctx-hygiene {__version__}")
+
+
+@app.command()
+def stats(
+    json_output: bool = typer.Option(False, "--json", help="Output as JSON"),
+) -> None:
+    """Show local usage telemetry (requires CONTEXT_HYGIENE_TELEMETRY=1)."""
+    from context_hygiene.telemetry import TelemetryStore, is_enabled
+
+    if not is_enabled():
+        console.print(
+            "[dim]Telemetry is disabled. "
+            "Set CONTEXT_HYGIENE_TELEMETRY=1 to enable local usage tracking.[/dim]"
+        )
+        return
+
+    db_file = get_config_dir() / "telemetry.db"
+    if not db_file.exists():
+        console.print("[dim]No telemetry data yet.[/dim]")
+        return
+
+    ts = TelemetryStore(db_file)
+    try:
+        commands = ts.get_command_counts()
+        pro_gates = ts.get_pro_gate_counts()
+        total = ts.get_total_events()
+        first = ts.get_first_event_time()
+        last = ts.get_last_event_time()
+        activity = ts.get_daily_activity()
+
+        if json_output:
+            import json
+
+            data = {
+                "total_events": total,
+                "first_event": first,
+                "last_event": last,
+                "commands": commands,
+                "pro_gate_hits": pro_gates,
+                "daily_activity": [{"date": d, "count": c} for d, c in activity],
+            }
+            console.print(json.dumps(data, indent=2))
+        else:
+            overview = Table(title="Telemetry Overview")
+            overview.add_column("Metric", style="cyan")
+            overview.add_column("Value", style="green")
+            overview.add_row("Total Events", str(total))
+            overview.add_row("First Event", first or "n/a")
+            overview.add_row("Last Event", last or "n/a")
+            console.print(overview)
+
+            if commands:
+                cmd_table = Table(title="Command Usage")
+                cmd_table.add_column("Command", style="cyan")
+                cmd_table.add_column("Count", style="green", justify="right")
+                for name, count in commands.items():
+                    cmd_table.add_row(name, str(count))
+                console.print(cmd_table)
+
+            if pro_gates:
+                gate_table = Table(title="Pro Feature Gate Hits")
+                gate_table.add_column("Feature", style="cyan")
+                gate_table.add_column("Attempts", style="yellow", justify="right")
+                for name, count in pro_gates.items():
+                    gate_table.add_row(name, str(count))
+                console.print(gate_table)
+
+            if activity:
+                act_table = Table(title="Daily Activity (Last 7 Days)")
+                act_table.add_column("Date", style="cyan")
+                act_table.add_column("Events", style="green", justify="right")
+                for day, count in activity:
+                    act_table.add_row(day, str(count))
+                console.print(act_table)
+    finally:
+        ts.close()
 
 
 def _default_output_path(file_path: str) -> str:
