@@ -82,10 +82,7 @@ def _get_machine_id() -> str:
     """Generate a stable machine identifier (hostname + username hash)."""
     import platform
 
-    raw = (
-        f"{platform.node()}"
-        f":{os.environ.get('USER', os.environ.get('USERNAME', 'unknown'))}"
-    )
+    raw = f"{platform.node()}:{os.environ.get('USER', os.environ.get('USERNAME', 'unknown'))}"
     return hashlib.sha256(raw.encode()).hexdigest()[:16]
 
 
@@ -153,14 +150,11 @@ def validate_key(key: str) -> LicenseInfo:
     parts = key.strip().split("-")
     if len(parts) != 4:
         raise LicenseError(
-            f"Invalid key format: expected CTHG-XXXX-XXXX-XXXX,"
-            f" got {len(parts)} segments"
+            f"Invalid key format: expected CTHG-XXXX-XXXX-XXXX, got {len(parts)} segments"
         )
 
     if parts[0] != _PREFIX:
-        raise LicenseError(
-            f"Invalid key prefix: expected '{_PREFIX}', got '{parts[0]}'"
-        )
+        raise LicenseError(f"Invalid key prefix: expected '{_PREFIX}', got '{parts[0]}'")
 
     body = f"{parts[1]}-{parts[2]}"
     expected_checksum = _compute_checksum(body)
@@ -215,9 +209,7 @@ def get_license() -> LicenseInfo:
             }
         )
         result_tier = tier if valid else Tier.FREE
-        return LicenseInfo(
-            tier=result_tier, key=key, valid=valid, metadata=metadata
-        )
+        return LicenseInfo(tier=result_tier, key=key, valid=valid, metadata=metadata)
 
     # Server unreachable — try expired cache
     try:
