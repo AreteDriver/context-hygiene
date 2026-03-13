@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "context-hygiene"
 version = "0.2.0"
 description = "Context window hygiene analyzer for LLM conversations"
-readme = {text = "Context window hygiene analyzer", content-type = "text/plain"}
+readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [{ name = "AreteDriver" }]
