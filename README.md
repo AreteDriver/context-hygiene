@@ -46,8 +46,7 @@ ctx-hygiene status
 | `audit --deep` (AI analysis) | - | Yes |
 | `watch` (live monitoring) | - | Yes |
 
-<!-- TODO: Replace with live Stripe payment links -->
-<!-- **[Subscribe Monthly ($8/mo)](https://buy.stripe.com/MONTHLY_LINK)** | **[Subscribe Yearly ($69/yr)](https://buy.stripe.com/YEARLY_LINK)** -->
+**[Subscribe Monthly ($8/mo)](https://buy.stripe.com/bJebJ11OHeBl3925kbgrS08)** | **[Subscribe Yearly ($69/yr)](https://buy.stripe.com/3cI6oH0KDal59xq5kbgrS09)**
 
 After purchase, you'll receive a license key via email. Activate it:
 
