@@ -69,6 +69,10 @@ context-hygiene parses structured context files (CLAUDE.md, YAML configs, prompt
 
 Fast mode uses heuristics. Deep mode (`--deep`, Pro) uses an LLM for semantic analysis.
 
+## Community
+
+[Discord](https://discord.gg/fdzQkrt8) — Join the community
+
 ## License
 
 MIT
