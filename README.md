@@ -1,6 +1,10 @@
 # context-hygiene
 
-Context window hygiene analyzer for LLM conversations. Detect staleness, contradictions, deadweight, and compression opportunities in CLAUDE.md files, prompt chains, and agent configs.
+**Context window hygiene analyzer for LLM conversations.**
+
+Heuristic detection of staleness, contradictions, deadweight, and compression opportunities in CLAUDE.md files, prompt chains, and agent configs. No LLM required for basic analysis.
+
+---
 
 ## Install
 
@@ -18,10 +22,10 @@ pip install "context-hygiene[watch]"      # Live file monitoring
 ## Quick Start
 
 ```bash
-# Audit a CLAUDE.md file
+# Audit a CLAUDE.md file (heuristics, no LLM)
 ctx-hygiene audit CLAUDE.md
 
-# Score staleness heuristically (no LLM needed)
+# Quick staleness score
 ctx-hygiene score CLAUDE.md
 
 # Auto-clean deadweight and stale segments
@@ -34,23 +38,77 @@ ctx-hygiene history
 ctx-hygiene status
 ```
 
-## Free vs Pro
+## How It Works
+
+context-hygiene parses structured context files into conversation segments and runs four heuristic analysis passes:
+
+### 1. Staleness Detection
+
+Identifies potentially outdated segments based on:
+- **Position decay** — earlier segments in a long conversation are more likely stale
+- **Language patterns** — detects corrections ("actually", "instead", "scratch that"), restarts ("let me start over"), and explicit staleness ("old", "deprecated")
+- **Error content** — large traceback blocks after a fix is applied
+- **Short mid-conversation messages** — often fragmented or superseded context
+
+Scored 0–1 per segment (0 = fresh, 1 = completely stale).
+
+### 2. Contradiction Detection
+
+Finds conflicting instructions between user/system segments using regex pattern matching:
+- Positive vs. negative directives ("use X" vs. "don't use X")
+- Opposing adverbs ("always" vs. "never")
+- Incompatible toggles ("enable" vs. "disable", "include" vs. "exclude")
+
+Flagged with confidence score (currently fixed at 0.7; deep mode uses LLM for refinement).
+
+### 3. Deadweight Detection
+
+Identifies zero-influence messages that consume tokens without shaping output:
+- Acknowledgment-only messages ("ok", "thanks", "got it")
+- Filler words ("hmm", "um", "well")
+- Assistant confirmation preambles ("Sure, I'd be happy to...")
+- Exact duplicates of earlier segments
+- Empty or whitespace-only messages
+
+### 4. Compression Detection
+
+Finds opportunities to condense without information loss:
+- Consecutive same-role runs (3+ messages from user/assistant in a row)
+- Large code blocks that could be referenced instead of inlined
+- Verbose assistant explanations where prose exceeds code content
+
+---
+
+## Fast vs. Deep Mode
+
+| | **Fast** (default) | **Deep** (Pro) |
+|---|---|---|
+| **How it works** | Regex + heuristic scoring | LLM semantic analysis |
+| **Speed** | Milliseconds | Seconds to minutes |
+| **Cost** | $0 | LLM API tokens |
+| **Staleness** | Pattern-based | Semantic drift detection |
+| **Contradictions** | Regex pairs | LLM cross-references |
+| **Deadweight** | Acknowledgment/filler filters | Semantic relevance scoring |
+| **Compression** | Token thresholds | Content summarization |
+
+**Fast mode is sufficient for most use cases.** Deep mode is useful when heuristic patterns miss nuanced semantic drift.
+
+---
+
+## Free vs. Pro
 
 | Feature | Free | Pro ($8/mo) |
 |---------|------|-------------|
 | `audit` (fast mode) | 10/month | Unlimited |
-| `score` | Unlimited | Unlimited |
-| `clean` | Unlimited | Unlimited |
-| `history` | Unlimited | Unlimited |
-| `status` / `stats` | Unlimited | Unlimited |
-| `audit --deep` (AI analysis) | - | Yes |
-| `watch` (live monitoring) | - | Yes |
+| `score` / `clean` / `history` | Unlimited | Unlimited |
+| `audit --deep` (AI analysis) | — | Yes |
+| `watch` (live monitoring) | — | Yes |
 
 **[Subscribe Monthly ($8/mo)](https://buy.stripe.com/bJebJ11OHeBl3925kbgrS08)** | **[Subscribe Yearly ($69/yr)](https://buy.stripe.com/3cI6oH0KDal59xq5kbgrS09)**
 
 **All 5 Tools Bundle:** [Monthly ($29/mo)](https://buy.stripe.com/7sY9AT9h90Kv5ha27ZgrS0a) | [Yearly ($199/yr)](https://buy.stripe.com/9B6fZh9h98cX24YfYPgrS0b) — includes claudemd-forge, agent-lint, ai-spend, promptctl, context-hygiene
 
-After purchase, you'll receive a license key via email. Activate it:
+After purchase, activate via:
 
 ```bash
 export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXX"
@@ -58,16 +116,18 @@ export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXX"
 
 Or save to `~/.config/context-hygiene/license`.
 
-## How It Works
+---
 
-context-hygiene parses structured context files (CLAUDE.md, YAML configs, prompt chains) into segments and runs four analysis passes:
+## What This Is (and Isn't)
 
-1. **Staleness** — Detects outdated references, stale version numbers, dead links
-2. **Contradictions** — Finds conflicting instructions or redundant rules
-3. **Deadweight** — Identifies low-signal boilerplate, excessive examples, noise
-4. **Compression** — Suggests where content can be condensed without information loss
+**context-hygiene is a practical heuristic tool, not a novel research metric.** It doesn't measure "semantic entropy" or "information-theoretic density." It applies well-understood pattern-matching techniques to a specific problem: finding waste in LLM context windows.
 
-Fast mode uses heuristics. Deep mode (`--deep`, Pro) uses an LLM for semantic analysis.
+If you're looking for:
+- **Token-level compression** → LLMLingua, Selective Context
+- **Novelty scoring** → Build your own embedding-based metric
+- **A quick sanity check before sending a long context** → `ctx-hygiene score` does exactly that
+
+---
 
 ## Community
 
