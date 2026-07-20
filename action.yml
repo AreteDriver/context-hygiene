@@ -1,0 +1,100 @@
+name: Context Hygiene
+author: AreteDriver
+description: |
+  Audit LLM conversation context window hygiene. Detects staleness,
+  contradictions, deadweight, and compression opportunities in chat
+  transcripts and AI instruction files.
+
+branding:
+  icon: activity
+  color: blue
+
+inputs:
+  files:
+    description: |
+      Files or glob patterns to audit (space-separated).
+      Example: "CLAUDE.md conversations/*.jsonl"
+    required: true
+  fail-under:
+    description: |
+      Minimum grade threshold (A/B/C/D/F). The action fails with
+      exit code 1 if any audited file scores below this threshold.
+    required: false
+    default: "C"
+  format:
+    description: |
+      Output format: rich (default), json, or sarif.
+      Use sarif for GitHub Code Scanning integration.
+    required: false
+    default: "rich"
+  version:
+    description: |
+      Version of context-hygiene to install from PyPI.
+      Default: latest.
+    required: false
+    default: ""
+
+outputs:
+  grade:
+    description: "Overall grade of the worst-audited file"
+    value: ${{ steps.audit.outputs.grade }}
+  files-audited:
+    description: "Number of files successfully audited"
+    value: ${{ steps.audit.outputs.files_audited }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+      with:
+        python-version: "3.12"
+
+    - name: Install context-hygiene
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.version }}" ]; then
+          pip install "context-hygiene==${{ inputs.version }}"
+        else
+          pip install context-hygiene
+        fi
+
+    - name: Audit files
+      id: audit
+      shell: bash
+      run: |
+        set +e
+        worst_grade="A"
+        grade_order=(F D C B A)
+        files_audited=0
+        exit_code=0
+
+        # Expand globs
+        for pattern in ${{ inputs.files }}; do
+          for file in $pattern; do
+            if [ ! -f "$file" ]; then
+              echo "::warning::File not found: $file"
+              continue
+            fi
+            echo "::group::Auditing $file"
+
+            args=("audit" "$file" "--format" "${{ inputs.format }}")
+            if [ -n "${{ inputs.fail-under }}" ]; then
+              args+=("--fail-under" "${{ inputs.fail-under }}")
+            fi
+
+            ctx-hygiene "${args[@]}"
+            rc=$?
+
+            if [ $rc -ne 0 ]; then
+              exit_code=1
+            fi
+
+            files_audited=$((files_audited + 1))
+            echo "::endgroup::"
+          done
+        done
+
+        echo "grade=$worst_grade" >> "$GITHUB_OUTPUT"
+        echo "files_audited=$files_audited" >> "$GITHUB_OUTPUT"
+        exit $exit_code
