@@ -1,0 +1,46 @@
+name: Context Hygiene
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  audit-claude-md:
+    name: Audit CLAUDE.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12"
+
+      - name: Install context-hygiene
+        run: pip install context-hygiene
+
+      - name: Audit CLAUDE.md
+        run: ctx-hygiene audit CLAUDE.md
+
+      - name: Enforce hygiene grade
+        run: |
+          python3 -c "
+          import subprocess, sys, json
+          from context_hygiene import audit_file
+          report = audit_file('CLAUDE.md')
+          print(f'Grade: {report.grade.value}')
+          print(f'Staleness: {report.staleness_score:.2f}')
+          print(f'Tokens: {report.total_tokens}')
+          print(f'Recoverable: {report.tokens_recoverable}')
+          # TODO: tighten threshold to B once CLAUDE.md is cleaned up
+          # Current grade: C (0.14 staleness, 198 recoverable tokens)
+          if report.grade.value in ('D', 'F'):
+              print('ERROR: Context hygiene grade below threshold C')
+              sys.exit(1)
+          print(f'PASS: Context hygiene grade {report.grade.value} meets threshold C')
+          "
