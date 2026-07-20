@@ -42,9 +42,18 @@ jobs:
       - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
         with:
           python-version: "3.12"
-      - run: pip install pip-audit
+      - run: pip install pip-audit bandit
       - run: pip install -e .
-      - run: pip-audit
+      - name: Dependency vulnerability scan
+        run: pip-audit
+      - name: Static security analysis
+        run: bandit -r src/ -f json -o bandit-report.json || true
+      - name: Upload bandit report
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45f832  # v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
 
   secret-scan:
     runs-on: ubuntu-latest

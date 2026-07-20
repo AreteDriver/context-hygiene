@@ -232,7 +232,8 @@ def audit(
         threshold_idx = grade_order.index(threshold)
         if report_idx < threshold_idx:
             console.print(
-                f"\n[red]FAILED:[/red] Grade {report.grade.value} is below threshold {threshold.value}"
+                f"\n[red]FAILED:[/red] Grade {report.grade.value} "
+                f"is below threshold {threshold.value}"
             )
             raise typer.Exit(1)
         console.print(
@@ -265,7 +266,7 @@ def audit(
                         continue
                     if mtime != last_mtime:
                         last_mtime = mtime
-                        console.print(f"\n[dim]File changed. Re-auditing...[/dim]")
+                        console.print("\n[dim]File changed. Re-auditing...[/dim]")
                         report = _audit_once()
                         store = _get_store()
                         try:
@@ -588,12 +589,18 @@ complete -c ctx-hygiene -n "__fish_use_subcommand" -a "version" -d "Show version
 complete -c ctx-hygiene -n "__fish_use_subcommand" -a "stats" -d "Show telemetry"
 complete -c ctx-hygiene -n "__fish_use_subcommand" -a "completion" -d "Generate shell completions"
 complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -s j -l json -d "Output as JSON"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l deep -d "Use LLM for deep analysis"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l fail-under -d "Minimum grade threshold" -xa "A B C D F"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -s w -l watch -d "Re-run when file changes"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -s o -l output -d "Output file path"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -l apply -d "Apply changes"
-complete -c ctx-hygiene -n "__fish_seen_subcommand_from history" -s n -l limit -d "Number of entries"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l deep \
+    -d "Use LLM for deep analysis"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l fail-under \
+    -d "Minimum grade threshold" -xa "A B C D F"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -s w -l watch \
+    -d "Re-run when file changes"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -s o -l output \
+    -d "Output file path"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -l apply \
+    -d "Apply changes"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from history" -s n -l limit \
+    -d "Number of entries"
 complete -c ctx-hygiene -n "__fish_seen_subcommand_from stats" -l json -d "Output as JSON"
 """
 
