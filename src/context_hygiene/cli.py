@@ -195,7 +195,11 @@ def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> Hygi
 @app.command()
 def audit(
     file: str = typer.Argument(..., help="Conversation file to audit"),
-    output_json: bool = typer.Option(False, "--json", help="Output as JSON (deprecated, use --format)"),
+    output_json: bool = typer.Option(
+        False,
+        "--json",
+        help="Output as JSON (deprecated, use --format)",
+    ),
     deep: bool = typer.Option(False, "--deep", help="Use LLM for deep analysis (Pro)"),
     fail_under: str = typer.Option(
         None,

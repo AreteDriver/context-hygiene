@@ -105,103 +105,123 @@ def format_report_sarif(report: HygieneReport) -> str:
     """Format report as SARIF for GitHub Code Scanning integration."""
     import json
 
-    # Map grade to SARIF severity
-    grade_severity = {
-        "A": "none",
-        "B": "note",
-        "C": "warning",
-        "D": "error",
-        "F": "error",
-    }
-
     results = []
 
     # Staleness as SARIF results
     for sr in report.staleness_results:
         if sr.score < 0.3:
             continue
-        results.append({
-            "ruleId": "context-hygiene/staleness",
-            "level": "warning" if sr.score < 0.7 else "error",
-            "message": {
-                "text": f"Segment {sr.segment_index} is stale (score {sr.score:.2f}). Reasons: {', '.join(sr.reasons)}"
-            },
-            "locations": [{
-                "physicalLocation": {
-                    "artifactLocation": {"uri": report.file_path},
-                    "region": {"startLine": sr.segment_index + 1}
-                }
-            }],
-        })
+        results.append(
+            {
+                "ruleId": "context-hygiene/staleness",
+                "level": "warning" if sr.score < 0.7 else "error",
+                "message": {
+                    "text": (
+                        f"Segment {sr.segment_index} is stale (score {sr.score:.2f})."
+                        f" Reasons: {', '.join(sr.reasons)}"
+                    ),
+                },
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": report.file_path},
+                            "region": {"startLine": sr.segment_index + 1},
+                        }
+                    }
+                ],
+            }
+        )
 
     # Contradictions
     for ct in report.contradictions:
-        results.append({
-            "ruleId": "context-hygiene/contradiction",
-            "level": "error",
-            "message": {
-                "text": f"Contradiction between segments {ct.segment_a} and {ct.segment_b}: {ct.description}"
-            },
-            "locations": [{
-                "physicalLocation": {
-                    "artifactLocation": {"uri": report.file_path},
-                    "region": {"startLine": min(ct.segment_a, ct.segment_b) + 1}
-                }
-            }],
-        })
+        results.append(
+            {
+                "ruleId": "context-hygiene/contradiction",
+                "level": "error",
+                "message": {
+                    "text": (
+                        f"Contradiction between segments {ct.segment_a}"
+                        f" and {ct.segment_b}: {ct.description}"
+                    ),
+                },
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": report.file_path},
+                            "region": {"startLine": min(ct.segment_a, ct.segment_b) + 1},
+                        }
+                    }
+                ],
+            }
+        )
 
     # Deadweight
     for dw in report.deadweight:
-        results.append({
-            "ruleId": "context-hygiene/deadweight",
-            "level": "note",
-            "message": {
-                "text": f"Segment {dw.segment_index} is deadweight: {dw.reason} ({dw.tokens_recoverable} tokens recoverable)"
-            },
-            "locations": [{
-                "physicalLocation": {
-                    "artifactLocation": {"uri": report.file_path},
-                    "region": {"startLine": dw.segment_index + 1}
-                }
-            }],
-        })
+        results.append(
+            {
+                "ruleId": "context-hygiene/deadweight",
+                "level": "note",
+                "message": {
+                    "text": (
+                        f"Segment {dw.segment_index} is deadweight:"
+                        f" {dw.reason} ({dw.tokens_recoverable} tokens recoverable)"
+                    ),
+                },
+                "locations": [
+                    {
+                        "physicalLocation": {
+                            "artifactLocation": {"uri": report.file_path},
+                            "region": {"startLine": dw.segment_index + 1},
+                        }
+                    }
+                ],
+            }
+        )
 
     sarif = {
         "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         "version": "2.1.0",
-        "runs": [{
-            "tool": {
-                "driver": {
-                    "name": "context-hygiene",
-                    "informationUri": "https://github.com/AreteDriver/context-hygiene",
-                    "rules": [
-                        {
-                            "id": "context-hygiene/staleness",
-                            "name": "Staleness",
-                            "shortDescription": {"text": "Detects stale conversation segments"},
-                            "defaultConfiguration": {"level": "warning"},
-                        },
-                        {
-                            "id": "context-hygiene/contradiction",
-                            "name": "Contradiction",
-                            "shortDescription": {"text": "Detects contradictions between segments"},
-                            "defaultConfiguration": {"level": "error"},
-                        },
-                        {
-                            "id": "context-hygiene/deadweight",
-                            "name": "Deadweight",
-                            "shortDescription": {"text": "Detects zero-influence messages"},
-                            "defaultConfiguration": {"level": "note"},
-                        },
-                    ],
-                }
-            },
-            "results": results,
-            "invocations": [{
-                "executionSuccessful": True,
-                "exitCode": 0,
-            }],
-        }],
+        "runs": [
+            {
+                "tool": {
+                    "driver": {
+                        "name": "context-hygiene",
+                        "informationUri": "https://github.com/AreteDriver/context-hygiene",
+                        "rules": [
+                            {
+                                "id": "context-hygiene/staleness",
+                                "name": "Staleness",
+                                "shortDescription": {
+                                    "text": "Detects stale conversation segments"
+                                },
+                                "defaultConfiguration": {"level": "warning"},
+                            },
+                            {
+                                "id": "context-hygiene/contradiction",
+                                "name": "Contradiction",
+                                "shortDescription": {
+                                    "text": "Detects contradictions between segments"
+                                },
+                                "defaultConfiguration": {"level": "error"},
+                            },
+                            {
+                                "id": "context-hygiene/deadweight",
+                                "name": "Deadweight",
+                                "shortDescription": {"text": "Detects zero-influence messages"},
+                                "defaultConfiguration": {"level": "note"},
+                            },
+                        ],
+                    }
+                },
+                "results": results,
+                "invocations": [
+                    {
+                        "executionSuccessful": True,
+                        "exitCode": 0,
+                    }
+                ],
+            }
+        ],
     }
 
     return json.dumps(sarif, indent=2)
