@@ -22,7 +22,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install context-hygiene
-        run: pip install context-hygiene
+        run: pip install -e ".[dev]"
 
       - name: Audit CLAUDE.md
         run: ctx-hygiene audit CLAUDE.md
