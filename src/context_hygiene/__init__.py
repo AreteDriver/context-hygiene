@@ -1,6 +1,6 @@
 """Context window hygiene analyzer for LLM conversations."""
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 from context_hygiene.api import audit_file, score_file
 

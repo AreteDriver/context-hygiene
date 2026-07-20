@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-07-20
+
+### Added
+- **Codex JSONL parser** — parses Codex CLI session exports (`response_item` entries with developer/user roles).
+- **Section-based markdown parsing** — `GenericParser` now splits AI instruction files (CLAUDE.md, AGENTS.md) by markdown headers when no role markers exist, enabling hygiene analysis on instruction documents.
+
+### Fixed
+- **v0.3.0 release workflow failure** — e2e test `test_audit_then_history_shows_entry` was asserting on a table-truncated filename. Fixed assertion to verify by grade/token values instead.
+
 ## [0.3.0] - 2026-07-19
 
 ### Added
