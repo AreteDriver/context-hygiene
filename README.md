@@ -39,6 +39,32 @@ ctx-hygiene history
 
 # Check license and config
 ctx-hygiene status
+
+# Watch a file for changes (re-audit on save)
+ctx-hygiene audit CLAUDE.md --watch
+
+# Enforce grade threshold in CI
+ctx-hygiene audit CLAUDE.md --fail-under B
+
+# Output SARIF for GitHub Code Scanning
+ctx-hygiene audit CLAUDE.md --format sarif > results.sarif
+
+# Shell completions
+ctx-hygiene completion bash >> ~/.bashrc
+ctx-hygiene completion zsh >> ~/.zshrc
+ctx-hygiene completion fish | source
+```
+
+## GitHub Action
+
+Use context-hygiene in your workflows:
+
+```yaml
+- uses: AreteDriver/context-hygiene@v1
+  with:
+    files: "CLAUDE.md"
+    fail-under: "B"
+    format: "sarif"
 ```
 
 ## Pre-Commit Hook
@@ -54,7 +80,12 @@ repos:
       - id: context-hygiene
 ```
 
-The hook runs `ctx-hygiene score` on all `*.md`, `*.txt`, and `*.jsonl` files. If the grade drops below a threshold, fail the build by adding a custom `args: ["score", "--fail-under", "B"]` (coming in v0.4.0).
+The hook runs `ctx-hygiene score` on all `*.md`, `*.txt`, and `*.jsonl` files. Fail the build if the grade drops below a threshold:
+
+```yaml
+- id: context-hygiene
+  args: ["audit", "--fail-under", "B"]
+```
 
 ## How It Works
 
