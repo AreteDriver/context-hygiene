@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 from context_hygiene.models import HygieneReport, Segment
-from context_hygiene.parsers.detect import parse_file
 
 
 class PruningPlan:
@@ -63,9 +60,8 @@ class PruningPlan:
         return "\n".join(lines)
 
 
-def build_pruning_plan(report: HygieneReport, file_path: str) -> PruningPlan:
-    """Build a pruning plan from an audit report."""
-    segments = parse_file(Path(file_path))
+def build_pruning_plan(report: HygieneReport, segments: list[Segment]) -> PruningPlan:
+    """Build a pruning plan from an audit report and pre-parsed segments."""
     return PruningPlan(report, segments)
 
 

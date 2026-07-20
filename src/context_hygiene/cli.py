@@ -128,9 +128,10 @@ def _run_deep_analysis(file_path: str) -> HygieneReport:
     return report
 
 
-def _run_analysis(file_path: str) -> HygieneReport:
+def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> HygieneReport:
     """Run full fast analysis on a file."""
-    segments = parse_file(Path(file_path))
+    if segments is None:
+        segments = parse_file(Path(file_path))
     if not segments:
         return HygieneReport(
             file_path=file_path,
@@ -307,8 +308,9 @@ def clean(
             segments_to_markdown,
         )
 
-        report = _run_analysis(file)
-        plan = build_pruning_plan(report, file)
+        segments = parse_file(Path(file))
+        report = _run_analysis(file, segments)
+        plan = build_pruning_plan(report, segments)
 
         console.print(plan.summary())
 

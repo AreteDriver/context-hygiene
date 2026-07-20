@@ -118,6 +118,51 @@ Or save to `~/.config/context-hygiene/license`.
 
 ---
 
+## Programmatic API
+
+You can also use `context-hygiene` from Python without shelling out to the CLI:
+
+```python
+from context_hygiene import audit_file, score_file
+
+# Full audit report
+report = audit_file("CLAUDE.md")
+print(report.grade)               # 'B'
+print(report.tokens_recoverable)  # 1,247
+
+# Quick score
+score = score_file("conversation.json")
+print(score.grade)      # 'C'
+print(score.staleness)  # 0.34
+```
+
+## Before / After Demo
+
+**Before:** A messy 14-segment conversation with stale instructions, deadweight, and contradictions.
+
+```
+Tokens: 1,847  |  Grade: D
+- "ok" (deadweight)
+- "Sure, let me know..." (assistant preamble)
+- "Actually, scratch that. Use poetry instead." (supersedes prior pip advice)
+- "Never mind, let me start over. I'll use uv instead." (supersedes poetry)
+- "Use pip for everything" vs "Don't use pip, use poetry" (contradiction)
+```
+
+Run the cleaner:
+
+```bash
+ctx-hygiene clean conversation.md --apply
+# Pruning plan: remove 4/14 segments
+# Tokens: 1,847 → 1,124 (save 723)
+```
+
+**After:** The same conversation, pruned to 10 segments with no contradictions and no deadweight.
+
+```
+Tokens: 1,124  |  Grade: B  |  Recoverable: 723 tokens (39%)
+```
+
 ## What This Is (and Isn't)
 
 **context-hygiene is a practical heuristic tool, not a novel research metric.** It doesn't measure "semantic entropy" or "information-theoretic density." It applies well-understood pattern-matching techniques to a specific problem: finding waste in LLM context windows.
@@ -135,4 +180,7 @@ If you're looking for:
 
 ## License
 
-MIT
+BSL-1.1 (Business Source License 1.1)
+
+The core heuristic analyzer is free to use and modify. AI-powered deep analysis
+(`--deep`) and live file monitoring (`watch`) require a Pro license.

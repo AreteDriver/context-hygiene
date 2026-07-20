@@ -160,7 +160,7 @@ def estimate_tokens(text: str) -> int:
 
         enc = tiktoken.encoding_for_model("gpt-4")
         return len(enc.encode(text))
-    except (ImportError, Exception):
-        # ~1.3 tokens per word is a reasonable proxy
+    except (ImportError, ModuleNotFoundError, KeyError, OSError):
+        # tiktoken not installed, model unknown, or I/O error — fall back to word proxy
         words = len(text.split())
         return max(int(words * 1.3), 1) if words else 0
