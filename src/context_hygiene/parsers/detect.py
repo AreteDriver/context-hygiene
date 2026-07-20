@@ -8,11 +8,13 @@ from context_hygiene.exceptions import ParseError
 from context_hygiene.models import Segment
 from context_hygiene.parsers.base import BaseParser
 from context_hygiene.parsers.claude import ClaudeParser
+from context_hygiene.parsers.codex import CodexParser
 from context_hygiene.parsers.generic import GenericParser
 from context_hygiene.parsers.openai import OpenAIParser
 
 _PARSERS: list[BaseParser] = [
     ClaudeParser(),
+    CodexParser(),
     OpenAIParser(),
     GenericParser(),  # fallback — must be last
 ]

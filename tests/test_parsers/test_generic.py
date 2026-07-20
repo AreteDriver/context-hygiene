@@ -145,3 +145,63 @@ class TestParse:
         segments = parser.parse(f)
         # Empty user message should be skipped
         assert all(s.content.strip() for s in segments)
+
+
+class TestSectionBasedParsing:
+    """AI instruction files (CLAUDE.md, AGENTS.md) — no role markers, just headers."""
+
+    def test_instruction_file_splits_by_headers(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "CLAUDE.md"
+        f.write_text(
+            "# Project Overview\n\nThis is the project overview.\n\n"
+            "## Architecture\n\nThe architecture is layered.\n\n"
+            "## Dependencies\n\nSee pyproject.toml.\n"
+        )
+        segments = parser.parse(f)
+        assert len(segments) == 3
+        assert all(s.role == Role.SYSTEM for s in segments)
+        assert "Project Overview" in segments[0].content
+        assert "Architecture" in segments[1].content
+        assert "Dependencies" in segments[2].content
+
+    def test_instruction_file_preamble(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "AGENTS.md"
+        f.write_text(
+            "Preamble text before headers.\n\n"
+            "# Title\n\nContent here.\n\n"
+            "## Section A\n\nMore content.\n"
+        )
+        segments = parser.parse(f)
+        # Preamble becomes its own segment before the first header
+        assert len(segments) == 3
+        assert "Preamble text" in segments[0].content
+        assert "Title" in segments[1].content
+        assert "Section A" in segments[2].content
+
+    def test_conversation_file_not_affected(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "conversation.md"
+        f.write_text("## User\nHello\n## Assistant\nHi\n")
+        segments = parser.parse(f)
+        assert len(segments) == 2
+        assert segments[0].role == Role.USER
+        assert segments[1].role == Role.ASSISTANT
+
+    def test_instruction_file_with_subheaders(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "test.md"
+        f.write_text(
+            "# Overview\n\nText.\n\n"
+            "## Subsection\n\nMore text.\n\n"
+            "### Deep header\n\nEven more.\n"
+        )
+        segments = parser.parse(f)
+        assert len(segments) == 3
+        assert "Overview" in segments[0].content
+        assert "Subsection" in segments[1].content
+        assert "Deep header" in segments[2].content
+
+    def test_plain_text_no_headers(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "notes.txt"
+        f.write_text("Just some plain text with no headers at all.\n")
+        segments = parser.parse(f)
+        assert len(segments) == 1
+        assert segments[0].role == Role.SYSTEM

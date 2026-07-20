@@ -9,6 +9,7 @@ import pytest
 
 from context_hygiene.exceptions import ParseError
 from context_hygiene.parsers.claude import ClaudeParser
+from context_hygiene.parsers.codex import CodexParser
 from context_hygiene.parsers.detect import detect_parser, parse_file
 from context_hygiene.parsers.generic import GenericParser
 from context_hygiene.parsers.openai import OpenAIParser
@@ -39,6 +40,12 @@ class TestDetectParser:
         # Should fall through to generic since .json isn't in generic's extensions
         with pytest.raises(ParseError, match="No parser"):
             detect_parser(f)
+
+    def test_codex_jsonl(self, tmp_path: Path):
+        f = tmp_path / "session.jsonl"
+        f.write_text(json.dumps({"type": "response_item", "payload": {}}) + "\n")
+        parser = detect_parser(f)
+        assert isinstance(parser, CodexParser)
 
     def test_unsupported_extension(self, tmp_path: Path):
         f = tmp_path / "test.xlsx"
