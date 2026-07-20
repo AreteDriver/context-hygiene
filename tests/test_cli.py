@@ -68,6 +68,24 @@ class TestAudit:
             result = runner.invoke(app, ["history"])
             assert result.exit_code == 0
 
+    def test_audit_fail_under_pass(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "C"])
+            assert result.exit_code == 0
+            assert "PASS" in result.output
+
+    def test_audit_fail_under_fail(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "A"])
+            assert result.exit_code == 1
+            assert "FAILED" in result.output
+
+    def test_audit_fail_under_invalid(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "Z"])
+            assert result.exit_code == 2
+            assert "must be one of" in result.output
+
     def test_free_tier_limit(self, generic_file: Path, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}, clear=True):
             # Run 10 audits (free limit)

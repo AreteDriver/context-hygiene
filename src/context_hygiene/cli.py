@@ -20,7 +20,7 @@ from context_hygiene.licensing import (
     MAX_FREE_AUDITS_PER_MONTH,
     get_license,
 )
-from context_hygiene.models import AnalysisMode, HygieneReport, Segment
+from context_hygiene.models import AnalysisMode, Grade, HygieneReport, Segment
 from context_hygiene.parsers.detect import parse_file
 from context_hygiene.reporter import format_report_json, format_report_rich
 from context_hygiene.store import AuditStore
@@ -171,9 +171,26 @@ def audit(
     file: str = typer.Argument(..., help="Conversation file to audit"),
     output_json: bool = typer.Option(False, "--json", help="Output as JSON"),
     deep: bool = typer.Option(False, "--deep", help="Use LLM for deep analysis (Pro)"),
+    fail_under: str = typer.Option(
+        None,
+        "--fail-under",
+        help="Exit with error if grade is below threshold (A/B/C/D/F)",
+    ),
 ) -> None:
     """Full hygiene audit: staleness + contradictions + deadweight + compression."""
     track_command("audit")
+
+    # Validate --fail-under early
+    threshold: Grade | None = None
+    if fail_under is not None:
+        fail_upper = fail_under.strip().upper()
+        if fail_upper not in Grade.__members__:
+            console.print(
+                f"[red]Error:[/red] --fail-under must be one of A, B, C, D, F (got '{fail_under}')"
+            )
+            raise typer.Exit(2)
+        threshold = Grade(fail_upper)
+
     try:
         _check_audit_quota()
         report = _run_deep_analysis(file) if deep else _run_analysis(file)
@@ -190,6 +207,20 @@ def audit(
             print(format_report_json(report))
         else:
             format_report_rich(report, console)
+
+        # Enforce --fail-under threshold after outputting report
+        if threshold is not None:
+            grade_order = [Grade.F, Grade.D, Grade.C, Grade.B, Grade.A]
+            report_idx = grade_order.index(report.grade)
+            threshold_idx = grade_order.index(threshold)
+            if report_idx < threshold_idx:
+                console.print(
+                    f"\n[red]FAILED:[/red] Grade {report.grade.value} is below threshold {threshold.value}"
+                )
+                raise typer.Exit(1)
+            console.print(
+                f"\n[green]PASS:[/green] Grade {report.grade.value} meets threshold {threshold.value}"
+            )
     except ContextHygieneError as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e

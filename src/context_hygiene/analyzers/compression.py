@@ -64,9 +64,10 @@ def _make_consecutive_candidate(
     run_len = len(run_segments)
     total_tokens = sum(s.token_estimate for s in run_segments)
 
-    # Skip if this run covers the entire file — it's likely an instruction file,
-    # not a compressible conversation transcript.
-    if start == 0 and end == len(segments):
+    # Skip if this run covers the entire file and all segments are SYSTEM —
+    # it's likely an instruction file (CLAUDE.md, AGENTS.md), not a chat
+    # transcript that should be compressed.
+    if start == 0 and end == len(segments) and segments[start].role == Role.SYSTEM:
         return None
 
     return CompressionCandidate(
