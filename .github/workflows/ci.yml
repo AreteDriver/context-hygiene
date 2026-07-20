@@ -50,7 +50,7 @@ jobs:
         run: bandit -r src/ -f json -o bandit-report.json || true
       - name: Upload bandit report
         if: always()
-        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45f832  # v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4
         with:
           name: bandit-report
           path: bandit-report.json
