@@ -186,7 +186,8 @@ def audit(
             store.close()
 
         if output_json:
-            console.print(format_report_json(report))
+            # Bypass rich console for JSON to avoid ANSI escape codes in output
+            print(format_report_json(report))
         else:
             format_report_rich(report, console)
     except ContextHygieneError as e:
