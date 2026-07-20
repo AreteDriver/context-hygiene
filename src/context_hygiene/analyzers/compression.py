@@ -37,33 +37,44 @@ def _find_consecutive_same_role(segments: list[Segment]) -> list[CompressionCand
         if segments[i].role != segments[run_start].role:
             run_len = i - run_start
             if run_len >= 3:
-                run_segments = segments[run_start:i]
-                total_tokens = sum(s.token_estimate for s in run_segments)
-                candidates.append(
-                    CompressionCandidate(
-                        segment_indices=[s.index for s in run_segments],
-                        current_tokens=total_tokens,
-                        estimated_compressed_tokens=max(total_tokens // 3, 10),
-                        reason=f"{run_len} consecutive {segments[run_start].role.value} messages",
-                    )
-                )
+                candidate = _make_consecutive_candidate(segments, run_start, i)
+                if candidate:
+                    candidates.append(candidate)
             run_start = i
 
     # Check final run
     run_len = len(segments) - run_start
     if run_len >= 3:
-        run_segments = segments[run_start:]
-        total_tokens = sum(s.token_estimate for s in run_segments)
-        candidates.append(
-            CompressionCandidate(
-                segment_indices=[s.index for s in run_segments],
-                current_tokens=total_tokens,
-                estimated_compressed_tokens=max(total_tokens // 3, 10),
-                reason=f"{run_len} consecutive {segments[run_start].role.value} messages",
-            )
-        )
+        candidate = _make_consecutive_candidate(segments, run_start, len(segments))
+        if candidate:
+            candidates.append(candidate)
 
     return candidates
+
+
+def _make_consecutive_candidate(
+    segments: list[Segment], start: int, end: int
+) -> CompressionCandidate | None:
+    """Build a candidate for a run of same-role segments.
+
+    Returns None if the run covers the entire file and all segments are SYSTEM,
+    to avoid penalizing structured instruction files (CLAUDE.md, AGENTS.md).
+    """
+    run_segments = segments[start:end]
+    run_len = len(run_segments)
+    total_tokens = sum(s.token_estimate for s in run_segments)
+
+    # Skip if this run covers the entire file — it's likely an instruction file,
+    # not a compressible conversation transcript.
+    if start == 0 and end == len(segments):
+        return None
+
+    return CompressionCandidate(
+        segment_indices=[s.index for s in run_segments],
+        current_tokens=total_tokens,
+        estimated_compressed_tokens=max(total_tokens // 3, 10),
+        reason=f"{run_len} consecutive {segments[start].role.value} messages",
+    )
 
 
 def _find_large_code_blocks(segments: list[Segment]) -> list[CompressionCandidate]:

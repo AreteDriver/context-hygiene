@@ -6,7 +6,7 @@
 **Language**: Python 3.10+
 **Purpose**: Context window hygiene analyzer for LLM conversations — detects staleness, contradictions, deadweight, and compression opportunities
 **Owner**: AreteDriver
-**PyPI**: `context-hygiene` (v0.2.1)
+**PyPI**: `context-hygiene` (v0.3.1)
 **License**: BSL-1.1
 
 ---
@@ -51,7 +51,7 @@ twine upload dist/*
 
 - Python 3.10+
 - Ruff for linting and formatting
-- pytest for testing (398 tests, 92% coverage gate)
+- pytest for testing (442+ tests, 92% coverage gate)
 - Pydantic for config/models
 - setuptools build backend
 
@@ -83,8 +83,8 @@ PyPI publishing via OIDC trusted publish.
 
 ## Security
 
-- BSL-1.1 license with Stripe-gated Pro features
-- License validation: local checksum -> 24h cache -> server -> fail-open
+- BSL-1.1 license with Pro feature gating
+- License validation: local checksum → 24h cache → server → fail-open
 - No secrets in source
 
 ---

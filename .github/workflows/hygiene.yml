@@ -37,10 +37,8 @@ jobs:
           print(f'Staleness: {report.staleness_score:.2f}')
           print(f'Tokens: {report.total_tokens}')
           print(f'Recoverable: {report.tokens_recoverable}')
-          # TODO: tighten threshold to B once CLAUDE.md is cleaned up
-          # Current grade: C (0.14 staleness, 198 recoverable tokens)
-          if report.grade.value in ('D', 'F'):
-              print('ERROR: Context hygiene grade below threshold C')
+          if report.grade.value in ('C', 'D', 'F'):
+              print(f'ERROR: Context hygiene grade {report.grade.value} below threshold B')
               sys.exit(1)
-          print(f'PASS: Context hygiene grade {report.grade.value} meets threshold C')
+          print(f'PASS: Context hygiene grade {report.grade.value} meets threshold B')
           "
