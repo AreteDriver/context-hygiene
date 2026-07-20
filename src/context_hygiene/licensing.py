@@ -73,9 +73,9 @@ class LicenseInfo:
 
 
 def _compute_checksum(body: str) -> str:
-    """Derive checksum from key body: SHA256(salt:body)[:4].upper()."""
+    """Derive checksum from key body: SHA256(salt:body)[:16].upper()."""
     raw = f"{_SALT}:{body}"
-    return hashlib.sha256(raw.encode()).hexdigest()[:4].upper()
+    return hashlib.sha256(raw.encode()).hexdigest()[:16].upper()
 
 
 def _get_machine_id() -> str:
@@ -141,8 +141,8 @@ def _validate_server(key: str) -> dict[str, Any] | None:
 def validate_key(key: str) -> LicenseInfo:
     """Validate a CTHG license key.
 
-    Format: CTHG-XXXX-XXXX-XXXX
-    Last segment is checksum of first two body segments.
+    Format: CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX
+    Last segment is a 16-character hex checksum of the first two body segments.
     """
     if not key:
         raise LicenseError("Empty license key")
@@ -150,7 +150,7 @@ def validate_key(key: str) -> LicenseInfo:
     parts = key.strip().split("-")
     if len(parts) != 4:
         raise LicenseError(
-            f"Invalid key format: expected CTHG-XXXX-XXXX-XXXX, got {len(parts)} segments"
+            f"Invalid key format: expected CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX, got {len(parts)} segments"
         )
 
     if parts[0] != _PREFIX:

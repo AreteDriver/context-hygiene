@@ -111,7 +111,7 @@ Finds opportunities to condense without information loss:
 After purchase, activate via:
 
 ```bash
-export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXX"
+export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX"
 ```
 
 Or save to `~/.config/context-hygiene/license`.
