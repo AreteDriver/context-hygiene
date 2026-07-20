@@ -41,6 +41,21 @@ ctx-hygiene history
 ctx-hygiene status
 ```
 
+## Pre-Commit Hook
+
+Keep your context files clean before committing:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/AreteDriver/context-hygiene
+    rev: v0.3.1
+    hooks:
+      - id: context-hygiene
+```
+
+The hook runs `ctx-hygiene score` on all `*.md`, `*.txt`, and `*.jsonl` files. If the grade drops below a threshold, fail the build by adding a custom `args: ["score", "--fail-under", "B"]` (coming in v0.4.0).
+
 ## How It Works
 
 context-hygiene parses structured context files into conversation segments and runs four heuristic analysis passes:
@@ -79,6 +94,18 @@ Finds opportunities to condense without information loss:
 - Consecutive same-role runs (3+ messages from user/assistant in a row)
 - Large code blocks that could be referenced instead of inlined
 - Verbose assistant explanations where prose exceeds code content
+
+---
+
+## Supported Formats
+
+| Format | Extension | Description |
+|--------|-----------|-------------|
+| **Claude exports** | `.json` | Claude conversation JSON exports |
+| **Codex sessions** | `.jsonl` | Codex CLI session transcripts |
+| **OpenAI / ChatGPT** | `.json` | ChatGPT conversation exports |
+| **Markdown conversations** | `.md`, `.txt` | Generic markdown with `## User` / `## Assistant` markers |
+| **AI instruction files** | `.md` | CLAUDE.md, AGENTS.md, INSTRUCTIONS.md — split by headers |
 
 ---
 
@@ -144,7 +171,7 @@ print(score.staleness)  # 0.34
 **Before:** A messy 14-segment conversation with stale instructions, deadweight, and contradictions.
 
 ```
-Tokens: 1,847  |  Grade: D
+Tokens: 240  |  Grade: C
 - "ok" (deadweight)
 - "Sure, let me know..." (assistant preamble)
 - "Actually, scratch that. Use poetry instead." (supersedes prior pip advice)
@@ -157,14 +184,16 @@ Run the cleaner:
 ```bash
 ctx-hygiene clean conversation.md --apply
 # Pruning plan: remove 4/14 segments
-# Tokens: 1,847 → 1,124 (save 723)
+# Tokens: 240 → 202 (save 38)
 ```
 
 **After:** The same conversation, pruned to 10 segments with no contradictions and no deadweight.
 
 ```
-Tokens: 1,124  |  Grade: B  |  Recoverable: 723 tokens (39%)
+Tokens: 202  |  Grade: B  |  Recoverable: 38 tokens (16%)
 ```
+
+📺 [Watch the live demo](https://asciinema.org/a/EyqNEFbuc1LHidBh)
 
 ## What This Is (and Isn't)
 
