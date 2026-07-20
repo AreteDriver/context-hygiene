@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from context_hygiene.api import ScoreResult, audit_file, score_file
+from context_hygiene.exceptions import ParseError
 from context_hygiene.models import Grade
 
 
@@ -32,7 +33,7 @@ class TestAuditFile:
         assert report.grade == Grade.A
 
     def test_audit_nonexistent_file_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ParseError):
             audit_file("/tmp/does_not_exist_12345.md")
 
     def test_audit_str_path(self, generic_file: Path):
@@ -56,7 +57,7 @@ class TestScoreFile:
         assert score.tokens == 0
 
     def test_score_nonexistent_file_raises(self):
-        with pytest.raises(Exception):
+        with pytest.raises(ParseError):
             score_file("/tmp/does_not_exist_12345.md")
 
     def test_score_result_repr(self):

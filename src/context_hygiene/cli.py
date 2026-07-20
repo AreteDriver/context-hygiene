@@ -20,7 +20,7 @@ from context_hygiene.licensing import (
     MAX_FREE_AUDITS_PER_MONTH,
     get_license,
 )
-from context_hygiene.models import AnalysisMode, HygieneReport
+from context_hygiene.models import AnalysisMode, HygieneReport, Segment
 from context_hygiene.parsers.detect import parse_file
 from context_hygiene.reporter import format_report_json, format_report_rich
 from context_hygiene.store import AuditStore

@@ -107,10 +107,7 @@ class GenericParser(BaseParser):
         if segments[0].role != Role.SYSTEM:
             return False
         # Make sure there were actually no role markers in the original text
-        for line in text.splitlines():
-            if self._detect_role(line) is not None:
-                return False
-        return True
+        return all(self._detect_role(line) is None for line in text.splitlines())
 
     def _parse_section_based(self, text: str) -> list[Segment]:
         """Parse AI instruction files by splitting on markdown headers.

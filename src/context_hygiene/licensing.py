@@ -150,7 +150,8 @@ def validate_key(key: str) -> LicenseInfo:
     parts = key.strip().split("-")
     if len(parts) != 4:
         raise LicenseError(
-            f"Invalid key format: expected CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX, got {len(parts)} segments"
+            "Invalid key format: expected CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX, "
+            f"got {len(parts)} segments"
         )
 
     if parts[0] != _PREFIX:

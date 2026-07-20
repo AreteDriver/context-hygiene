@@ -22,7 +22,6 @@ from context_hygiene.analyzers.compression import compression_fast
 from context_hygiene.analyzers.contradictions import contradictions_fast
 from context_hygiene.analyzers.deadweight import deadweight_fast
 from context_hygiene.analyzers.staleness import staleness_fast
-from context_hygiene.exceptions import ContextHygieneError
 from context_hygiene.models import (
     Grade,
     HygieneReport,
@@ -53,7 +52,7 @@ def audit_file(
 
 def score_file(
     file_path: str | Path,
-) -> "ScoreResult":
+) -> ScoreResult:
     """Run a quick staleness score on a conversation file.
 
     Args:

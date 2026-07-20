@@ -84,7 +84,9 @@ class TestCleanPipeline:
             assert result.exit_code == 0
             assert "Cleaned output written to" in result.output
 
-            expected_path = generic_file.parent / f"{generic_file.stem}.cleaned{generic_file.suffix}"
+            expected_path = (
+                generic_file.parent / f"{generic_file.stem}.cleaned{generic_file.suffix}"
+            )
             assert expected_path.exists()
             content = expected_path.read_text()
             assert "## User" in content or "## Assistant" in content
@@ -113,7 +115,9 @@ class TestCleanPipeline:
             assert result.exit_code == 0
 
             # The output should be consistent — no parse errors or mismatches
-            expected_path = generic_file.parent / f"{generic_file.stem}.cleaned{generic_file.suffix}"
+            expected_path = (
+                generic_file.parent / f"{generic_file.stem}.cleaned{generic_file.suffix}"
+            )
             assert expected_path.exists()
 
     def test_clean_on_empty_file(self, empty_file: Path, tmp_config_dir: Path):
