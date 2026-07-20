@@ -1,5 +1,8 @@
 # context-hygiene
 
+[![PyPI version](https://badge.fury.io/py/context-hygiene.svg)](https://pypi.org/project/context-hygiene/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+
 **Context window hygiene analyzer for LLM conversations.**
 
 Heuristic detection of staleness, contradictions, deadweight, and compression opportunities in CLAUDE.md files, prompt chains, and agent configs. No LLM required for basic analysis.
