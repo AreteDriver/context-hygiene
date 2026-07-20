@@ -7,6 +7,7 @@ from pathlib import Path
 
 import typer
 from rich.console import Console
+from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn, TextColumn
 from rich.table import Table
 
 from context_hygiene import __version__
@@ -138,12 +139,33 @@ def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> Hygi
             analyzed_at=datetime.now(timezone.utc),
         )
 
-    staleness = staleness_fast(segments)
-    contras = contradictions_fast(segments)
-    dead = deadweight_fast(segments)
-    comp = compression_fast(segments)
-
     total_tokens = sum(s.token_estimate for s in segments)
+    show_progress = len(segments) >= 20
+
+    if show_progress:
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            TaskProgressColumn(),
+            console=console,
+            transient=True,
+        ) as progress:
+            task = progress.add_task("Analyzing...", total=4)
+            staleness = staleness_fast(segments)
+            progress.update(task, advance=1, description="Staleness...")
+            contras = contradictions_fast(segments)
+            progress.update(task, advance=1, description="Contradictions...")
+            dead = deadweight_fast(segments)
+            progress.update(task, advance=1, description="Deadweight...")
+            comp = compression_fast(segments)
+            progress.update(task, advance=1, description="Compression...")
+    else:
+        staleness = staleness_fast(segments)
+        contras = contradictions_fast(segments)
+        dead = deadweight_fast(segments)
+        comp = compression_fast(segments)
+
     tokens_recoverable = sum(d.tokens_recoverable for d in dead)
     tokens_recoverable += sum(c.savings_tokens for c in comp)
 
@@ -176,6 +198,7 @@ def audit(
         "--fail-under",
         help="Exit with error if grade is below threshold (A/B/C/D/F)",
     ),
+    watch: bool = typer.Option(False, "--watch", "-w", help="Re-run when file changes"),
 ) -> None:
     """Full hygiene audit: staleness + contradictions + deadweight + compression."""
     track_command("audit")
@@ -191,36 +214,68 @@ def audit(
             raise typer.Exit(2)
         threshold = Grade(fail_upper)
 
-    try:
+    def _audit_once() -> HygieneReport:
         _check_audit_quota()
-        report = _run_deep_analysis(file) if deep else _run_analysis(file)
+        return _run_deep_analysis(file) if deep else _run_analysis(file)
 
-        # Save to store
+    def _render(report: HygieneReport) -> None:
+        if output_json:
+            print(format_report_json(report))
+        else:
+            format_report_rich(report, console)
+
+    def _enforce(report: HygieneReport) -> None:
+        if threshold is None:
+            return
+        grade_order = [Grade.F, Grade.D, Grade.C, Grade.B, Grade.A]
+        report_idx = grade_order.index(report.grade)
+        threshold_idx = grade_order.index(threshold)
+        if report_idx < threshold_idx:
+            console.print(
+                f"\n[red]FAILED:[/red] Grade {report.grade.value} is below threshold {threshold.value}"
+            )
+            raise typer.Exit(1)
+        console.print(
+            f"\n[green]PASS:[/green] Grade {report.grade.value} meets threshold {threshold.value}"
+        )
+
+    try:
+        report = _audit_once()
         store = _get_store()
         try:
             store.save_audit(report)
         finally:
             store.close()
 
-        if output_json:
-            # Bypass rich console for JSON to avoid ANSI escape codes in output
-            print(format_report_json(report))
-        else:
-            format_report_rich(report, console)
+        _render(report)
+        _enforce(report)
 
-        # Enforce --fail-under threshold after outputting report
-        if threshold is not None:
-            grade_order = [Grade.F, Grade.D, Grade.C, Grade.B, Grade.A]
-            report_idx = grade_order.index(report.grade)
-            threshold_idx = grade_order.index(threshold)
-            if report_idx < threshold_idx:
-                console.print(
-                    f"\n[red]FAILED:[/red] Grade {report.grade.value} is below threshold {threshold.value}"
-                )
-                raise typer.Exit(1)
-            console.print(
-                f"\n[green]PASS:[/green] Grade {report.grade.value} meets threshold {threshold.value}"
-            )
+        if watch:
+            file_path = Path(file)
+            last_mtime = file_path.stat().st_mtime
+            console.print(f"\n[dim]Watching {file} for changes... (Ctrl+C to stop)[/dim]")
+            try:
+                import time
+
+                while True:
+                    time.sleep(1.0)
+                    try:
+                        mtime = file_path.stat().st_mtime
+                    except FileNotFoundError:
+                        continue
+                    if mtime != last_mtime:
+                        last_mtime = mtime
+                        console.print(f"\n[dim]File changed. Re-auditing...[/dim]")
+                        report = _audit_once()
+                        store = _get_store()
+                        try:
+                            store.save_audit(report)
+                        finally:
+                            store.close()
+                        _render(report)
+                        _enforce(report)
+            except KeyboardInterrupt:
+                console.print("\n[dim]Stopped watching.[/dim]")
     except ContextHygieneError as e:
         console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e
@@ -457,6 +512,116 @@ def stats(
                 console.print(act_table)
     finally:
         ts.close()
+
+
+_BASH_COMPLETION = """
+_ctx_hygiene_completion() {
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="audit score history status clean watch version stats completion --help"
+
+    case "${prev}" in
+        audit|score|clean)
+            _filedir '@(md|txt|json|jsonl)'
+            return 0
+            ;;
+        --fail-under)
+            COMPREPLY=( $(compgen -W 'A B C D F' -- "${cur}") )
+            return 0
+            ;;
+    esac
+
+    COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+    return 0
+}
+complete -F _ctx_hygiene_completion ctx-hygiene
+"""
+
+_ZSH_COMPLETION = """
+#compdef ctx-hygiene
+
+_ctx-hygiene() {
+  local curcontext="$curcontext" state line
+  typeset -A opt_args
+
+  _arguments -C \\
+    '1: :->command' \\
+    '*: :->args'
+
+  case "$state" in
+    command)
+      _values 'commands' \\
+        'audit[Full hygiene audit]' \\
+        'score[Quick staleness score]' \\
+        'history[Show past audits]' \\
+        'status[Show license and config]' \\
+        'clean[Auto-prune deadweight]' \\
+        'watch[Live file monitoring]' \\
+        'version[Show version]' \\
+        'stats[Show telemetry]' \\
+        'completion[Generate shell completions]'
+      ;;
+    args)
+      case "$line[1]" in
+        audit|score|clean)
+          _files -g '*.(md|txt|json|jsonl)'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+compdef _ctx-hygiene ctx-hygiene
+"""
+
+_FISH_COMPLETION = """
+complete -c ctx-hygiene -f
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "audit" -d "Full hygiene audit"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "score" -d "Quick staleness score"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "history" -d "Show past audits"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "status" -d "Show license and config"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "clean" -d "Auto-prune deadweight"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "watch" -d "Live file monitoring"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "version" -d "Show version"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "stats" -d "Show telemetry"
+complete -c ctx-hygiene -n "__fish_use_subcommand" -a "completion" -d "Generate shell completions"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -s j -l json -d "Output as JSON"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l deep -d "Use LLM for deep analysis"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -l fail-under -d "Minimum grade threshold" -xa "A B C D F"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from audit" -s w -l watch -d "Re-run when file changes"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -s o -l output -d "Output file path"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from clean" -l apply -d "Apply changes"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from history" -s n -l limit -d "Number of entries"
+complete -c ctx-hygiene -n "__fish_seen_subcommand_from stats" -l json -d "Output as JSON"
+"""
+
+
+@app.command()
+def completion(
+    shell: str = typer.Argument(..., help="Shell: bash, zsh, fish"),
+) -> None:
+    """Generate shell completion script."""
+    shell = shell.lower().strip()
+    scripts = {
+        "bash": _BASH_COMPLETION,
+        "zsh": _ZSH_COMPLETION,
+        "fish": _FISH_COMPLETION,
+    }
+    if shell not in scripts:
+        console.print(
+            f"[red]Error:[/red] Unsupported shell '{shell}'. Choose from: bash, zsh, fish"
+        )
+        raise typer.Exit(1)
+    console.print(scripts[shell].strip())
+    console.print(f"\n[dim]Add to your {shell}rc:[/dim]")
+    if shell == "bash":
+        console.print('  eval "$(ctx-hygiene completion bash)"')
+    elif shell == "zsh":
+        console.print('  eval "$(ctx-hygiene completion zsh)"')
+    elif shell == "fish":
+        console.print("  ctx-hygiene completion fish | source")
 
 
 def _default_output_path(file_path: str) -> str:

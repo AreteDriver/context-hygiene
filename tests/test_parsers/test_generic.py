@@ -189,9 +189,7 @@ class TestSectionBasedParsing:
     def test_instruction_file_with_subheaders(self, parser: GenericParser, tmp_path: Path):
         f = tmp_path / "test.md"
         f.write_text(
-            "# Overview\n\nText.\n\n"
-            "## Subsection\n\nMore text.\n\n"
-            "### Deep header\n\nEven more.\n"
+            "# Overview\n\nText.\n\n## Subsection\n\nMore text.\n\n### Deep header\n\nEven more.\n"
         )
         segments = parser.parse(f)
         assert len(segments) == 3

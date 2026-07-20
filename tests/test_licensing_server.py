@@ -110,7 +110,8 @@ class TestServerValidation:
 
             def json(self):
                 return {
-                    "valid": True, "tier": "pro",
+                    "valid": True,
+                    "tier": "pro",
                     "product": "context-hygiene",
                 }
 
@@ -158,9 +159,7 @@ class TestServerValidation:
             return MockResponse()
 
         monkeypatch.setattr("httpx.post", _capture_post)
-        monkeypatch.setenv(
-            "CONTEXT_HYGIENE_LICENSE_SERVER", "https://custom.example.com"
-        )
+        monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE_SERVER", "https://custom.example.com")
         _real_validate_server("CTHG-TEST-ABCD-1234")
         assert "custom.example.com" in captured_url[0]
 
@@ -172,17 +171,11 @@ class TestGetLicenseWithServer:
         key = _make_valid_key()
         cache_file = tmp_path / "license_cache.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
-        _write_cache(
-            {"key": key, "tier": "pro", "valid": True, "metadata": {}}
-        )
-        monkeypatch.setattr(
-            "context_hygiene.licensing._validate_server", lambda k: None
-        )
+        _write_cache({"key": key, "tier": "pro", "valid": True, "metadata": {}})
+        monkeypatch.setattr("context_hygiene.licensing._validate_server", lambda k: None)
 
         info = get_license()
         assert info.tier == Tier.PRO
@@ -192,9 +185,7 @@ class TestGetLicenseWithServer:
         key = _make_valid_key()
         cache_file = tmp_path / "license_cache.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
         monkeypatch.setattr(
@@ -214,9 +205,7 @@ class TestGetLicenseWithServer:
         key = _make_valid_key()
         cache_file = tmp_path / "license_cache.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
         monkeypatch.setattr(
@@ -228,59 +217,45 @@ class TestGetLicenseWithServer:
         assert info.tier == Tier.FREE
         assert info.valid is False
 
-    def test_server_down_uses_expired_cache(
-        self, tmp_path, monkeypatch
-    ) -> None:
+    def test_server_down_uses_expired_cache(self, tmp_path, monkeypatch) -> None:
         key = _make_valid_key()
         cache_file = tmp_path / "license_cache.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
         expired = {
-            "key": key, "tier": "pro", "valid": True,
+            "key": key,
+            "tier": "pro",
+            "valid": True,
             "cached_at": time.time() - 200000,
         }
         cache_file.write_text(json.dumps(expired))
 
-        monkeypatch.setattr(
-            "context_hygiene.licensing._validate_server", lambda k: None
-        )
+        monkeypatch.setattr("context_hygiene.licensing._validate_server", lambda k: None)
 
         info = get_license()
         assert info.tier == Tier.PRO
         assert info.degraded is True
 
-    def test_server_down_no_cache_falls_back_local(
-        self, tmp_path, monkeypatch
-    ) -> None:
+    def test_server_down_no_cache_falls_back_local(self, tmp_path, monkeypatch) -> None:
         key = _make_valid_key()
         cache_file = tmp_path / "nonexistent.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
-        monkeypatch.setattr(
-            "context_hygiene.licensing._validate_server", lambda k: None
-        )
+        monkeypatch.setattr("context_hygiene.licensing._validate_server", lambda k: None)
 
         info = get_license()
         assert info.tier == Tier.PRO
         assert info.degraded is True
 
-    def test_degraded_flag_false_on_server_success(
-        self, tmp_path, monkeypatch
-    ) -> None:
+    def test_degraded_flag_false_on_server_success(self, tmp_path, monkeypatch) -> None:
         key = _make_valid_key()
         cache_file = tmp_path / "license_cache.json"
         monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
-        monkeypatch.setattr(
-            "context_hygiene.licensing._CACHE_FILE", cache_file
-        )
+        monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", cache_file)
         monkeypatch.setenv("CONTEXT_HYGIENE_LICENSE", key)
 
         monkeypatch.setattr(

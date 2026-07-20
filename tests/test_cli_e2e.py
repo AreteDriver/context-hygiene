@@ -78,9 +78,7 @@ class TestCleanPipeline:
 
     def test_clean_apply_writes_file(self, generic_file: Path, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
-            result = runner.invoke(
-                app, ["clean", str(generic_file), "--apply"]
-            )
+            result = runner.invoke(app, ["clean", str(generic_file), "--apply"])
             assert result.exit_code == 0
             assert "Cleaned output written to" in result.output
 
@@ -100,9 +98,7 @@ class TestCleanPipeline:
             assert result.exit_code == 0
             assert out_path.exists()
 
-    def test_clean_does_not_reparse_inconsistently(
-        self, generic_file: Path, tmp_config_dir: Path
-    ):
+    def test_clean_does_not_reparse_inconsistently(self, generic_file: Path, tmp_config_dir: Path):
         """Regression: clean must use the same segments as the report, not re-parse.
 
         If the file is parsed twice (once for audit, once for pruning),

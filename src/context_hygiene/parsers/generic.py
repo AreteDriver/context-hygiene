@@ -75,9 +75,7 @@ class GenericParser(BaseParser):
                 if current_role is not None and current_lines:
                     content = "\n".join(current_lines).strip()
                     if content:
-                        segments.append(
-                            Segment(index=idx, role=current_role, content=content)
-                        )
+                        segments.append(Segment(index=idx, role=current_role, content=content))
                         idx += 1
                 current_role = detected_role
                 current_lines = []
@@ -136,9 +134,7 @@ class GenericParser(BaseParser):
                 if current_lines:
                     content = "\n".join(current_lines).strip()
                     if content:
-                        segments.append(
-                            Segment(index=idx, role=Role.SYSTEM, content=content)
-                        )
+                        segments.append(Segment(index=idx, role=Role.SYSTEM, content=content))
                         idx += 1
                 current_lines = [line]
             else:
@@ -148,9 +144,7 @@ class GenericParser(BaseParser):
         if current_lines:
             content = "\n".join(current_lines).strip()
             if content:
-                segments.append(
-                    Segment(index=idx, role=Role.SYSTEM, content=content)
-                )
+                segments.append(Segment(index=idx, role=Role.SYSTEM, content=content))
 
         return segments
 

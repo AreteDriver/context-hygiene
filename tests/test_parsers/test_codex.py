@@ -64,9 +64,7 @@ class TestParse:
                     "payload": {
                         "type": "message",
                         "role": "user",
-                        "content": [
-                            {"type": "input_text", "text": "Hello world"}
-                        ],
+                        "content": [{"type": "input_text", "text": "Hello world"}],
                     },
                 }
             )
@@ -86,9 +84,7 @@ class TestParse:
                     "payload": {
                         "type": "message",
                         "role": "developer",
-                        "content": [
-                            {"type": "input_text", "text": "I'll help you"}
-                        ],
+                        "content": [{"type": "input_text", "text": "I'll help you"}],
                     },
                 }
             )
@@ -231,9 +227,7 @@ class TestParse:
                     "payload": {
                         "type": "message",
                         "role": "user",
-                        "content": [
-                            {"type": "input_text", "text": "Line 1\nLine 2"}
-                        ],
+                        "content": [{"type": "input_text", "text": "Line 1\nLine 2"}],
                     },
                 }
             )
