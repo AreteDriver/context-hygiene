@@ -231,3 +231,5 @@ BSL-1.1 (Business Source License 1.1)
 
 The core heuristic analyzer is free to use and modify. AI-powered deep analysis
 (`--deep`) and live file monitoring (`watch`) require a Pro license.
+
+See [LICENSE](LICENSE) for full BSL-1.1 terms.
