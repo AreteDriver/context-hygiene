@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/context-hygiene.svg)](https://pypi.org/project/context-hygiene/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: BSL-1.1](https://img.shields.io/badge/License-BSL--1.1-blue.svg)](LICENSE)
 
 **Context window hygiene analyzer for LLM conversations.**
 
