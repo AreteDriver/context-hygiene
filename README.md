@@ -142,7 +142,7 @@ Finds opportunities to condense without information loss:
 
 ## Fast vs. Deep Mode
 
-| | **Fast** (default) | **Deep** (Pro) |
+| | **Fast** (default) | **Deep** |
 |---|---|---|
 | **How it works** | Regex + heuristic scoring | LLM semantic analysis |
 | **Speed** | Milliseconds | Seconds to minutes |
@@ -156,26 +156,9 @@ Finds opportunities to condense without information loss:
 
 ---
 
-## Free vs. Pro
+## License
 
-| Feature | Free | Pro ($8/mo) |
-|---------|------|-------------|
-| `audit` (fast mode) | 10/month | Unlimited |
-| `score` / `clean` / `history` | Unlimited | Unlimited |
-| `audit --deep` (AI analysis) | — | Yes |
-| `watch` (live monitoring) | — | Yes |
-
-**[Subscribe Monthly ($8/mo)](https://buy.stripe.com/bJebJ11OHeBl3925kbgrS08)** | **[Subscribe Yearly ($69/yr)](https://buy.stripe.com/3cI6oH0KDal59xq5kbgrS09)**
-
-**All 5 Tools Bundle:** [Monthly ($29/mo)](https://buy.stripe.com/7sY9AT9h90Kv5ha27ZgrS0a) | [Yearly ($199/yr)](https://buy.stripe.com/9B6fZh9h98cX24YfYPgrS0b) — includes claudemd-forge, agent-lint, ai-spend, promptctl, context-hygiene
-
-After purchase, activate via:
-
-```bash
-export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX"
-```
-
-Or save to `~/.config/context-hygiene/license`.
+MIT. See [LICENSE](LICENSE).
 
 ---
 
