@@ -8,6 +8,8 @@
 
 Heuristic detection of staleness, contradictions, deadweight, and compression opportunities in CLAUDE.md files, prompt chains, and agent configs. No LLM required for basic analysis.
 
+![ctx-hygiene demo](docs/assets/context-hygiene-demo.gif)
+
 ---
 
 ## Install
