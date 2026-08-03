@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/context-hygiene.svg)](https://pypi.org/project/context-hygiene/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: BSL-1.1](https://img.shields.io/badge/License-BSL--1.1-blue.svg)](LICENSE)
+[![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
 
 **Context window hygiene analyzer for LLM conversations.**
 
@@ -229,9 +229,9 @@ If you're looking for:
 
 ## License
 
-BSL-1.1 (Business Source License 1.1)
+BUSL-1.1 (Business Source License 1.1)
 
 The core heuristic analyzer is free to use and modify. AI-powered deep analysis
 (`--deep`) and live file monitoring (`watch`) require a Pro license.
 
-See [LICENSE](LICENSE) for full BSL-1.1 terms.
+See [LICENSE](LICENSE) for full BUSL-1.1 terms.
