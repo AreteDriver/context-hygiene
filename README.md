@@ -63,7 +63,7 @@ ctx-hygiene completion fish | source
 Use context-hygiene in your workflows:
 
 ```yaml
-- uses: AreteDriver/context-hygiene@v1
+- uses: AreteDriver/context-hygiene@v0.3.2
   with:
     files: "CLAUDE.md"
     fail-under: "B"
@@ -78,7 +78,7 @@ Keep your context files clean before committing:
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/AreteDriver/context-hygiene
-    rev: v0.3.1
+    rev: v0.3.2
     hooks:
       - id: context-hygiene
 ```
@@ -156,12 +156,6 @@ Finds opportunities to condense without information loss:
 | **Compression** | Token thresholds | Content summarization |
 
 **Fast mode is sufficient for most use cases.** Deep mode is useful when heuristic patterns miss nuanced semantic drift.
-
----
-
-## License
-
-MIT. See [LICENSE](LICENSE).
 
 ---
 
