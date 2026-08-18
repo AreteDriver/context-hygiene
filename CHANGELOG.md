@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Cross-CLI repository guidance** — `AGENTS.md` is now the canonical project
+  guide, with a thin Claude Code compatibility file.
+- **Current package metadata** — packaging uses SPDX license metadata and the
+  README integration examples target the latest published tag, v0.3.2.
+
+### Fixed
+- **License documentation** — removed a stale duplicate README section that
+  incorrectly labeled the current license as MIT.
+
 ## [0.3.3] - 2026-08-17
 
 ### Fixed
