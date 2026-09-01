@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from unittest.mock import MagicMock, patch
 
 from typer.testing import CliRunner
@@ -51,8 +52,9 @@ class TestWatchCommand:
 
 
 class TestDeepFlag:
-    def test_deep_requires_pro(self, generic_file):
-        result = runner.invoke(app, ["audit", str(generic_file), "--deep"])
+    def test_deep_requires_pro(self, generic_file, tmp_path):
+        with patch.dict(os.environ, {"CONTEXT_HYGIENE_DIR": str(tmp_path)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--deep"])
         assert result.exit_code == 1
         assert "Pro" in result.output or "license" in result.output.lower()
 
@@ -98,6 +100,26 @@ class TestGetLlmProvider:
         ):
             _get_llm_provider()
         mock_cls.assert_called_once()
+
+    def test_anthropic_eval_limits_are_configurable(self):
+        from context_hygiene.cli import _get_llm_provider
+
+        mock_cls = MagicMock()
+        fake_module = MagicMock(AnthropicProvider=mock_cls)
+        with (
+            patch(
+                "context_hygiene.config.load_config",
+                return_value={
+                    "llm_provider": "anthropic",
+                    "anthropic_model": "claude-sonnet-4-6",
+                    "anthropic_max_tokens": 1024,
+                    "anthropic_max_retries": 0,
+                },
+            ),
+            patch.dict("sys.modules", {"context_hygiene.llm.anthropic": fake_module}),
+        ):
+            _get_llm_provider()
+        mock_cls.assert_called_once_with(model="claude-sonnet-4-6", max_tokens=1024, max_retries=0)
 
 
 class TestDefaultOutputPath:

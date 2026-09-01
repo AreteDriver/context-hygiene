@@ -116,6 +116,8 @@ class HygieneReport(BaseModel):
     tokens_recoverable: int = 0
     analyzed_at: datetime | None = None
     mode: AnalysisMode = AnalysisMode.FAST
+    model_id: str | None = None
+    usage: dict[str, int] | None = None
 
     def compute_grade(self) -> Grade:
         """Compute grade from analysis results."""

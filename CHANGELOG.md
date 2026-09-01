@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Configurable Anthropic output-token and retry limits for bounded eval runs.
+- Non-secret model and token-usage provenance in deep-analysis JSON reports.
+
 ### Changed
 - **Cross-CLI repository guidance** — `AGENTS.md` is now the canonical project
   guide, with a thin Claude Code compatibility file.

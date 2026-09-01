@@ -157,6 +157,12 @@ Finds opportunities to condense without information loss:
 
 **Fast mode is sufficient for most use cases.** Deep mode is useful when heuristic patterns miss nuanced semantic drift.
 
+For bounded evaluation runs, the Anthropic provider also accepts
+`anthropic_max_tokens` and `anthropic_max_retries` in `config.yaml`. Deep-mode
+JSON reports include the exact `model_id` plus cumulative input tokens, output
+tokens, and successful request count. Credentials and prompt contents are not
+included in this metadata.
+
 ---
 
 ## Programmatic API

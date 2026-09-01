@@ -70,7 +70,11 @@ def _get_llm_provider():
     if provider_name == "anthropic":
         from context_hygiene.llm.anthropic import AnthropicProvider
 
-        return AnthropicProvider(model=config.get("anthropic_model", "claude-sonnet-4-6"))
+        return AnthropicProvider(
+            model=config.get("anthropic_model", "claude-sonnet-4-6"),
+            max_tokens=int(config.get("anthropic_max_tokens", 4096)),
+            max_retries=int(config.get("anthropic_max_retries", 2)),
+        )
 
     from context_hygiene.llm.ollama import OllamaProvider
 
@@ -128,6 +132,8 @@ def _run_deep_analysis(file_path: str) -> HygieneReport:
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
         mode=AnalysisMode.DEEP,
+        model_id=getattr(provider, "model_id", None),
+        usage=(provider.usage if isinstance(getattr(provider, "usage", None), dict) else None),
     )
     report.grade = report.compute_grade()
     return report
