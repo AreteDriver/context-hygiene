@@ -3,6 +3,7 @@
 Synthetic positive and negative controls, not a representative external corpus.
 No claims about semantic equivalence or whether removal is safe.
 """
+
 from __future__ import annotations
 
 from context_hygiene.analyzers.deadweight import deadweight_fast
