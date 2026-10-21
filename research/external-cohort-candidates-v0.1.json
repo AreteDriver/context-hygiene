@@ -1,0 +1,82 @@
+[
+  {
+    "repository": "NousResearch/hermes-agent",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "career-ops-hq/career-ops",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "thedaviddias/Front-End-Checklist",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "ZhuLinsen/daily_stock_analysis",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "hugohe3/ppt-master",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "CherryHQ/cherry-studio",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "HKUDS/nanobot",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "siyuan-note/siyuan",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "codewhale-hq/Codewhale",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "CopilotKit/CopilotKit",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "can1357/oh-my-pi",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "Twigpine/openclaude",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "morluto/rea",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "affaan-m/ECC",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "DietrichGebert/ponytail",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "Graphify-Labs/graphify",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "OpenHands/OpenHands",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "tt-a1i/archify",
+    "path": "AGENTS.md"
+  },
+  {
+    "repository": "rtk-ai/rtk",
+    "path": "CLAUDE.md"
+  },
+  {
+    "repository": "localstack/localstack",
+    "path": "AGENTS.md"
+  }
+]
