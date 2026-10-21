@@ -204,7 +204,6 @@ class TestSectionBasedParsing:
         assert len(segments) == 1
         assert segments[0].role == Role.SYSTEM
 
-
     def test_fenced_comments_do_not_split_sections(self, parser: GenericParser, tmp_path: Path):
         f = tmp_path / "AGENTS.md"
         f.write_text(
