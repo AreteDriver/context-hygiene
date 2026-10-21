@@ -1,6 +1,6 @@
 # External duplicate-detection cohort — screening log (in progress)
 
-**Status:** 45 screened, 29 provisional candidates, 16 excluded. **Not frozen or labeled. No accuracy claim.**
+**Status:** 45 screened, 29 initial file-present candidates, 16 without root files. One file-present candidate (localstack/localstack) was subsequently rejected by the pinning eligibility gate. Twenty selected candidates are listed in `research/external-cohort-candidates-v0.1.json`; `sickn33/agentic-awesome-skills` replaces LocalStack. Not frozen or labeled. **Not frozen or labeled. No accuracy claim.**
 
 ## Discovery rule
 
@@ -60,7 +60,7 @@ GitHub repository search `topic:developer-tools stars:>100`, default relevance, 
 | 9 | hoppscotch/hoppscotch | — | — | exclude: neither root file |
 | 10 | ComposioHQ/awesome-claude-skills | — | — | exclude: neither root file |
 | 11 | daytonaio/daytona | — | — | exclude: neither root file |
-| 12 | localstack/localstack | AGENTS.md | `e5f81c35c2119f521ba9d570491094290e773714` | provisional |
+| 12 | localstack/localstack | AGENTS.md | `e5f81c35c2119f521ba9d570491094290e773714` | excluded from selected cohort: GitHub API reports archived/fork/private; pinning rejected |
 | 13 | ayghri/i-have-adhd | AGENTS.md | `49a84d2088b0943517b199347065f8c45487dac8` | provisional |
 | 14 | GitHubDaily/GitHubDaily | — | — | exclude: neither root file |
 | 15 | sickn33/agentic-awesome-skills | AGENTS.md | `443dfed383a76b42aea747634eb729086bdadc11` | provisional |
