@@ -205,7 +205,7 @@ class TestSectionBasedParsing:
         assert segments[0].role == Role.SYSTEM
 
 
-    def test_fenced_python_comments_do_not_split_sections(self, parser: GenericParser, tmp_path: Path):
+    def test_fenced_comments_do_not_split_sections(self, parser: GenericParser, tmp_path: Path):
         f = tmp_path / "AGENTS.md"
         f.write_text(
             "## Agent History\n\n"
@@ -242,7 +242,7 @@ class TestSectionBasedParsing:
         assert len(segments) == 2
         assert segments[1].content == "## Real heading"
 
-    def test_fenced_only_headers_do_not_create_sections(self, parser: GenericParser, tmp_path: Path):
+    def test_fenced_only_headers_are_not_sections(self, parser: GenericParser, tmp_path: Path):
         f = tmp_path / "AGENTS.md"
         f.write_text("```python\n# comment only\n```\n")
         segments = parser.parse(f)
