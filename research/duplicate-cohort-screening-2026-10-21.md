@@ -74,3 +74,9 @@ GitHub repository search `topic:developer-tools stars:>100`, default relevance, 
 5. Independently label full logical duplicate section pairs, then run the analyzer blind to labels; report discrepancies, TP/FP/FN and undefined metrics where applicable.
 
 No source content or raw audit report is stored here.
+
+## Pinned manifest verification (2026-10-21)
+
+The [successful source-pinning workflow run](https://github.com/AreteDriver/context-hygiene/actions/runs/39694171441) retained artifact `external-cohort-pinned` (artifact ID `12389243818`, seven-day retention). Its JSON manifest was downloaded and inspected independently of the workflow success status. It contains exactly **20 records**, **20 unique repository names**, and **20 distinct GitHub owner logins**; all commit IDs have 40 hexadecimal characters and all input SHA-256 digests have 64 hexadecimal characters. The manifest status is explicitly `pinned_unlabeled_not_frozen`. The full manifest is in the CI artifact rather than committed to this repository. Distinct owner logins do not prove unrelated maintainers or independent content.
+
+License metadata includes MIT, Apache-2.0, AGPL-3.0, and **NOASSERTION** for `Twigpine/openclaude`. The latter requires manual license verification or substitution before the cohort is frozen. Small files, especially `Graphify-Labs/graphify` (563 bytes), should be retained only if they satisfy a declared minimum-content criterion, not discarded based on detector outcomes. Other eligibility checks (source ownership, fork relationships beyond the GitHub fork flag, file purpose and meaningful section structure) remain open. The artifact expires after seven days; any frozen manifest must be retained durably, with only hashes/metadata and links, before evaluation begins. No precision/recall scores or human labels exist yet.
