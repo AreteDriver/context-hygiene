@@ -145,8 +145,8 @@ class GenericParser(BaseParser):
                         segments.append(Segment(index=idx, role=Role.SYSTEM, content=content))
                         idx += 1
                 current_lines = [line]
-            else:
-                current_lines.append(line)
+                continue
+            current_lines.append(line)
 
         if not found_header:
             return []
