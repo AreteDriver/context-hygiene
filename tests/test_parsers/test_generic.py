@@ -218,7 +218,8 @@ class TestSectionBasedParsing:
         )
         segments = parser.parse(f)
         assert len(segments) == 2
-        assert "# Access useful information" in segments[0].content
+        assert "```python\n# Access useful information" in segments[0].content
+        assert "history.errors()\n```" in segments[0].content
         assert "## Not a Markdown section" in segments[0].content
         assert segments[1].content.startswith("## Structured Output")
 
@@ -239,6 +240,8 @@ class TestSectionBasedParsing:
         )
         segments = parser.parse(f)
         assert len(segments) == 2
+        assert "~~~~python\n## Inside tilde fence" in segments[0].content
+        assert "## Still inside long fence\n````" in segments[0].content
         assert segments[1].content == "## Real heading"
 
     def test_fenced_only_headers_are_not_sections(self, parser: GenericParser, tmp_path: Path):
