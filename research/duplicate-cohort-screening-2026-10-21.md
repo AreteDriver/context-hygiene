@@ -1,10 +1,10 @@
 # External duplicate-detection cohort — screening log (in progress)
 
-**Status:** 12 screened, 8 provisional candidates, 4 excluded. **Not frozen or labeled. No accuracy claim.**
+**Status:** 30 screened, 19 provisional candidates, 11 excluded. **Not frozen or labeled. No accuracy claim.**
 
 ## Discovery rule
 
-GitHub repository search `topic:ai-agent stars:>100`, ordered by GitHub's default search relevance, page 1, first 12 results, screened 2026-10-21. For each result, check root `AGENTS.md` first, then root `CLAUDE.md` if absent. Exclude when neither exists. Do not select based on analyzer findings. This discovery stratum is AI-agent-focused and not representative of all software repositories. Expand to other strata before freezing the 20-repository cohort.
+GitHub repository search `topic:ai-agent stars:>100`, ordered by GitHub's default search relevance, page 1, first 30 results, screened 2026-10-21. For each result, check root `AGENTS.md` first, then root `CLAUDE.md` if absent. Exclude when neither exists. Do not select based on analyzer findings. This discovery stratum is AI-agent-focused and not representative of all software repositories. Expand to other strata before freezing the 20-repository cohort.
 
 The file blob SHA below verifies which Git blob was observed, but is **not** a pinned commit SHA or a SHA-256 of the file contents. These must be recorded independently before evaluation. License, fork status, owner independence and content eligibility also remain unverified. Do not label or run the detector until the manifest is frozen.
 
@@ -23,9 +23,28 @@ The file blob SHA below verifies which Git blob was observed, but is **not** a p
 | 11 | zhayujie/CowAgent | — | — | exclude: neither root file |
 | 12 | siyuan-note/siyuan | AGENTS.md | `b647b154119417b0e2ea1a52b0593bb626a3e1c6` | provisional |
 
+| 13 | codewhale-hq/Codewhale | AGENTS.md | `0180f8340d69ce5e7244f6794e14ec3591ba037d` | provisional |
+| 14 | CopilotKit/CopilotKit | AGENTS.md | `26db928b366eddbc1f85c6f9c532029ca5a28219` | provisional |
+| 15 | HKUDS/Vibe-Trading | — | — | exclude: neither root file |
+| 16 | can1357/oh-my-pi | AGENTS.md | `705cc3f4ed361aeaaa31923f4bf0d54e86dbd3d1` | provisional |
+| 17 | agentscope-ai/QwenPaw | — | — | exclude: neither root file |
+| 18 | esengine/DeepSeek-Reasonix | AGENTS.md | `f16da0860282d51291e11ad230f6c7ecb2303880` | provisional; only 158 characters, check eligibility |
+| 19 | Twigpine/openclaude | AGENTS.md | `bcdd5aaded7c460777281a1cc6b7a01a8762a1b4` | provisional |
+| 20 | iOfficeAI/AionUi | AGENTS.md | `32f4aa9389e39e08c3932589893d23dd3f86416e` | provisional |
+| 21 | feder-cr/invisible_dots | — | — | exclude: neither root file |
+| 22 | googleworkspace/cli | AGENTS.md | `722112264ba71816a4e7c5561b56aa19011e0dea` | provisional |
+| 23 | trycua/cua | AGENTS.md | `694b448c6d8269934f28e392777ec0fc690ec693` | provisional |
+| 24 | jackwener/OpenCLI | — | — | exclude: neither root file |
+| 25 | TencentCloud/TencentDB-Agent-Memory | — | — | exclude: neither root file |
+| 26 | QwenLM/qwen-code | AGENTS.md | `597db3baad469df278458f8df0ef313dd719c1b2` | provisional |
+| 27 | op7418/guizang-ppt-skill | — | — | exclude: neither root file |
+| 28 | titanwings/distilly | — | — | exclude: neither root file |
+| 29 | activepieces/activepieces | AGENTS.md | `e7f8168ecc8909c0a2bb01af1cae18407a5470e8` | provisional |
+| 30 | nocobase/nocobase | AGENTS.md | `030a2aae85d670ac1cdade03e19100ca581a1dbe` | provisional |
+
 ## Before evaluation
 
-1. Screen the remaining results and at least one non-agent discovery stratum; record exclusions.
+1. Screen at least one non-agent discovery stratum and additional repositories to reach 20 eligible independent candidates; record exclusions.
 2. Check distinct ownership, forks, license, and accessibility; select at least 20 independent repositories without consulting analyzer predictions.
 3. Resolve immutable source commit and path; retrieve file SHA-256, line count, size, license and timestamp.
 4. Freeze cohort manifest and preregister label rules per `docs/benchmark-exact-duplicates-v0.1.md`.
