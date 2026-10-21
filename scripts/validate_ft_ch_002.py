@@ -32,7 +32,7 @@ def main() -> None:
         env = dict(os.environ, CONTEXT_HYGIENE_TELEMETRY="0")
         env["CONTEXT_HYGIENE_DIR"] = str(Path(tmp) / "state")
         proc = subprocess.run(
-            [sys.executable, "-m", "context_hygiene.cli", "audit",
+            ["ctx-hygiene", "audit",
              str(path), "--format", "json"],
             capture_output=True, text=True, env=env, check=True,
         )
