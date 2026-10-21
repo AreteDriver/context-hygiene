@@ -1,6 +1,6 @@
 # External duplicate-detection cohort — screening log (in progress)
 
-**Status:** 30 screened, 19 provisional candidates, 11 excluded. **Not frozen or labeled. No accuracy claim.**
+**Status:** 45 screened, 29 provisional candidates, 16 excluded. **Not frozen or labeled. No accuracy claim.**
 
 ## Discovery rule
 
@@ -42,9 +42,32 @@ The file blob SHA below verifies which Git blob was observed, but is **not** a p
 | 29 | activepieces/activepieces | AGENTS.md | `e7f8168ecc8909c0a2bb01af1cae18407a5470e8` | provisional |
 | 30 | nocobase/nocobase | AGENTS.md | `030a2aae85d670ac1cdade03e19100ca581a1dbe` | provisional |
 
+
+## Second discovery stratum: developer tools
+
+GitHub repository search `topic:developer-tools stars:>100`, default relevance, page 1, first 15 results, screened 2026-10-21. The same root-file screening rule applies. This stratum broadens beyond AI-agent-focused repositories but is still search-ranked, not random.
+
+| Search rank | Repository | Root file | Git blob SHA | Screen |
+|---:|---|---|---|---|
+| 1 | morluto/rea | AGENTS.md | `1f26ffbe24f3e438da5ec6d7f3f11626d33bde1b` | provisional |
+| 2 | affaan-m/ECC | AGENTS.md | `f2f049297454806522722b3bbe2b7ebb10811a0b` | provisional |
+| 3 | DietrichGebert/ponytail | AGENTS.md | `ee5d6f1d6c1e4ff197a41d3ff43fa6597dbc81d4` | provisional |
+| 4 | Graphify-Labs/graphify | AGENTS.md | `38857bdc2d175525367110a814289f9b9bb90f7d` | provisional; short (563 chars) |
+| 5 | puppeteer/puppeteer | — | — | exclude: neither root file |
+| 6 | OpenHands/OpenHands | AGENTS.md | `119dce3b9b9ad95c07624d4858eb5b58c59dd367` | provisional |
+| 7 | tt-a1i/archify | AGENTS.md | `562788125a8bd393392eff656a31109e94485833` | provisional |
+| 8 | rtk-ai/rtk | CLAUDE.md | `b62fce49594e043a3b41028b44315ce50409e11d` | provisional |
+| 9 | hoppscotch/hoppscotch | — | — | exclude: neither root file |
+| 10 | ComposioHQ/awesome-claude-skills | — | — | exclude: neither root file |
+| 11 | daytonaio/daytona | — | — | exclude: neither root file |
+| 12 | localstack/localstack | AGENTS.md | `e5f81c35c2119f521ba9d570491094290e773714` | provisional |
+| 13 | ayghri/i-have-adhd | AGENTS.md | `49a84d2088b0943517b199347065f8c45487dac8` | provisional |
+| 14 | GitHubDaily/GitHubDaily | — | — | exclude: neither root file |
+| 15 | sickn33/agentic-awesome-skills | AGENTS.md | `443dfed383a76b42aea747634eb729086bdadc11` | provisional |
+
 ## Before evaluation
 
-1. Screen at least one non-agent discovery stratum and additional repositories to reach 20 eligible independent candidates; record exclusions.
+1. Verify eligibility and independence of at least 20 of the 29 provisional candidates across both discovery strata; record exclusions.
 2. Check distinct ownership, forks, license, and accessibility; select at least 20 independent repositories without consulting analyzer predictions.
 3. Resolve immutable source commit and path; retrieve file SHA-256, line count, size, license and timestamp.
 4. Freeze cohort manifest and preregister label rules per `docs/benchmark-exact-duplicates-v0.1.md`.
