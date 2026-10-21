@@ -118,18 +118,26 @@ class GenericParser(BaseParser):
         if not lines:
             return []
 
-        # Quick check: does this file have markdown headers?
-        has_headers = any(_HEADER_RE.match(line.strip()) for line in lines)
-        if not has_headers:
-            return []
-
         segments: list[Segment] = []
         current_lines: list[str] = []
         idx = 0
+        fence_char: str | None = None
+        fence_length = 0
+        found_header = False
 
         for line in lines:
             stripped = line.strip()
-            if _HEADER_RE.match(stripped):
+            fence = re.match(r"^(`{3,}|~{3,})", stripped)
+            if fence_char is None and fence:
+                fence_char = fence.group(1)[0]
+                fence_length = len(fence.group(1))
+            elif fence_char is not None and re.fullmatch(
+                re.escape(fence_char) + "{" + str(fence_length) + r",}\s*", stripped
+            ):
+                fence_char = None
+                fence_length = 0
+            elif fence_char is None and _HEADER_RE.match(stripped):
+                found_header = True
                 # Save previous section
                 if current_lines:
                     content = "\n".join(current_lines).strip()
@@ -139,6 +147,9 @@ class GenericParser(BaseParser):
                 current_lines = [line]
             else:
                 current_lines.append(line)
+
+        if not found_header:
+            return []
 
         # Final section
         if current_lines:
