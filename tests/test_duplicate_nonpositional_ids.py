@@ -34,6 +34,4 @@ def test_short_duplicate_threshold_preserved():
         Segment(index=8, role=Role.USER, content="tiny"),
         Segment(index=9, role=Role.USER, content="tiny"),
     ]
-    assert not any(
-        r.reason.startswith("exact duplicate") for r in deadweight_fast(segments)
-    )
+    assert not any(r.reason.startswith("exact duplicate") for r in deadweight_fast(segments))
