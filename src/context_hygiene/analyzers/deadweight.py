@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 
-from context_hygiene.models import DeadweightResult, Role, Segment
+from context_hygiene.models import DeadweightResult, DuplicateReference, Role, Segment
 
 _I = re.IGNORECASE
 
@@ -76,6 +77,13 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
                         DeadweightResult(
                             segment_index=seg.index,
                             reason=f"exact duplicate of segment {earlier.index}",
+                            duplicate_reference=DuplicateReference(
+                                earlier_index=earlier.index,
+                                role=seg.role,
+                                content_sha256=hashlib.sha256(
+                                    seg.content.encode("utf-8")
+                                ).hexdigest(),
+                            ),
                             tokens_recoverable=seg.token_estimate,
                         )
                     )
