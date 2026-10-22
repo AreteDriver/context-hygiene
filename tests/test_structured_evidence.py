@@ -66,9 +66,7 @@ def test_cross_role_echo_fails_closed():
 
 
 def test_system_role_remains_protected():
-    result = review_duplicate_evidence(
-        pair(Role.SYSTEM), evidence(role="system")
-    )
+    result = review_duplicate_evidence(pair(Role.SYSTEM), evidence(role="system"))
     assert result.exact_content_verified
     assert result.decision.disposition is Actionability.PROTECTED
 
