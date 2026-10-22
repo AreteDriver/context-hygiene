@@ -53,7 +53,6 @@ def test_short_exact_duplicate_is_not_reported():
     assert result["recall"] == 0.0
 
 
-
 def test_triplicate_expands_to_all_pairs_for_internal_scoring():
     """Production keeps two findings while internal scoring expands all three pairs."""
     texts = [
