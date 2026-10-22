@@ -36,7 +36,8 @@ def test_rejects_modified_manifest_bytes(tmp_path):
     path = _manifest(tmp_path)
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     path.write_bytes(path.read_bytes() + b" ")
-    assert validate_manifest(path, expected_sha256=digest) == ["manifest byte-level SHA-256 mismatch"]
+    errors = validate_manifest(path, expected_sha256=digest)
+    assert errors == ["manifest byte-level SHA-256 mismatch"]
 
 
 def test_rejects_duplicate_owner(tmp_path):
