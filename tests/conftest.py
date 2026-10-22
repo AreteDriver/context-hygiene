@@ -15,9 +15,7 @@ FIXTURES_DIR = Path(__file__).parent / "fixtures"
 def _no_server_validation(monkeypatch, tmp_path):
     """Prevent license server calls and cache reads in all tests."""
     monkeypatch.setattr("context_hygiene.licensing._validate_server", lambda k: None)
-    monkeypatch.setattr(
-        "context_hygiene.licensing._CACHE_FILE", tmp_path / "no_cache.json"
-    )
+    monkeypatch.setattr("context_hygiene.licensing._CACHE_FILE", tmp_path / "no_cache.json")
     monkeypatch.setattr("context_hygiene.licensing._CACHE_DIR", tmp_path)
 
 

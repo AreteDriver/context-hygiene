@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import runpy
+from importlib.metadata import version
 
 import pytest
 
@@ -10,8 +11,8 @@ from context_hygiene import __version__
 
 
 class TestVersion:
-    def test_version_string(self):
-        assert __version__  # non-empty version string
+    def test_version_matches_package_metadata(self):
+        assert __version__ == version("context-hygiene")
 
 
 class TestMain:

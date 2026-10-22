@@ -1,0 +1,37 @@
+name: Update Homebrew Formula
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6
+        with:
+          python-version: "3.12"
+
+      - name: Install poet
+        run: |
+          pip install homebrew-pypi-poet
+
+      - name: Generate formula
+        run: |
+          mkdir -p Formula
+          poet context-hygiene > Formula/context-hygiene.rb
+          sed -i 's|class ContextHygiene|class ContextHygiene < Formula\n  include Language::Python::Virtualenv|' Formula/context-hygiene.rb
+
+      - name: Commit formula
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/context-hygiene.rb
+          git diff --cached --quiet || git commit -m "chore: update Homebrew formula for ${{ github.ref_name }}"
+          git push

@@ -51,7 +51,7 @@ class TestComputeChecksum:
 
     def test_length(self):
         c = _compute_checksum("TEST-KEY0")
-        assert len(c) == 4
+        assert len(c) == 16
 
     def test_uppercase(self):
         c = _compute_checksum("TEST-KEY0")
@@ -96,7 +96,7 @@ class TestValidateKey:
 
     def test_bad_checksum(self):
         with pytest.raises(LicenseError, match="checksum"):
-            validate_key("CTHG-XXXX-XXXX-0000")
+            validate_key("CTHG-XXXX-XXXX-0000000000000000")
 
     def test_whitespace_stripped(self):
         key = generate_key()

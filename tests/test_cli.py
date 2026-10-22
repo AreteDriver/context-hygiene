@@ -57,6 +57,13 @@ class TestAudit:
             assert result.exit_code == 0
             assert "file_path" in result.output
 
+    def test_audit_sarif_output(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--format", "sarif"])
+            assert result.exit_code == 0
+            assert "$schema" in result.output
+            assert "context-hygiene" in result.output
+
     def test_audit_nonexistent(self, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
             result = runner.invoke(app, ["audit", "/tmp/nope.md"])
@@ -67,6 +74,24 @@ class TestAudit:
             runner.invoke(app, ["audit", str(generic_file)])
             result = runner.invoke(app, ["history"])
             assert result.exit_code == 0
+
+    def test_audit_fail_under_pass(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "C"])
+            assert result.exit_code == 0
+            assert "PASS" in result.output
+
+    def test_audit_fail_under_fail(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "A"])
+            assert result.exit_code == 1
+            assert "FAILED" in result.output
+
+    def test_audit_fail_under_invalid(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--fail-under", "Z"])
+            assert result.exit_code == 2
+            assert "must be one of" in result.output
 
     def test_free_tier_limit(self, generic_file: Path, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}, clear=True):
@@ -186,6 +211,28 @@ class TestStats:
             result = runner.invoke(app, ["stats", "--json"])
             assert result.exit_code == 0
             assert "total_events" in result.output
+
+
+class TestCompletion:
+    def test_bash(self):
+        result = runner.invoke(app, ["completion", "bash"])
+        assert result.exit_code == 0
+        assert "_ctx_hygiene_completion" in result.output
+
+    def test_zsh(self):
+        result = runner.invoke(app, ["completion", "zsh"])
+        assert result.exit_code == 0
+        assert "_ctx-hygiene" in result.output
+
+    def test_fish(self):
+        result = runner.invoke(app, ["completion", "fish"])
+        assert result.exit_code == 0
+        assert "ctx-hygiene" in result.output
+
+    def test_invalid_shell(self):
+        result = runner.invoke(app, ["completion", "powershell"])
+        assert result.exit_code == 1
+        assert "Unsupported shell" in result.output
 
 
 class TestNoArgs:
