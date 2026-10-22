@@ -9,7 +9,7 @@ import hashlib
 from dataclasses import dataclass
 
 from context_hygiene.models import Segment
-from context_hygiene.safety import Actionability, SafetyDecision, classify_duplicate
+from context_hygiene.safety import SafetyDecision, classify_duplicate
 
 
 @dataclass(frozen=True)
