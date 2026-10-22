@@ -54,8 +54,8 @@ def test_short_exact_duplicate_is_not_reported():
 
 
 
-def test_triplicate_first_match_limit_is_measured_not_hidden():
-    """Three identical messages yield one prediction per later segment, not all pairs."""
+def test_triplicate_expands_to_all_pairs_for_internal_scoring():
+    """Production keeps two findings while internal scoring expands all three pairs."""
     texts = [
         "Preserve exact source references in all generated reports.",
         "Preserve exact source references in all generated reports.",
@@ -70,10 +70,11 @@ def test_triplicate_first_match_limit_is_measured_not_hidden():
     assert predicted == [
         {"source_id": "synthetic", "block_a": "0", "block_b": "1"},
         {"source_id": "synthetic", "block_a": "0", "block_b": "2"},
+        {"source_id": "synthetic", "block_a": "1", "block_b": "2"},
     ]
     result = evaluate(gold, predicted)
-    assert (result["tp"], result["fp"], result["fn"]) == (2, 0, 1)
+    assert (result["tp"], result["fp"], result["fn"]) == (3, 0, 0)
     assert result["precision"] == 1.0
-    assert result["recall"] == 2 / 3
+    assert result["recall"] == 1.0
     assert result["scope"] == "internal_fixture_only"
     assert result["external_accuracy_claim_permitted"] is False
