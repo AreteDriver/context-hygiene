@@ -68,6 +68,8 @@ def test_rejects_missing_record(tmp_path):
 
 
 def test_committed_manifest_is_exact_pinned_artifact():
-    manifest = Path(__file__).resolve().parents[1] / "research" / "external-cohort-pinned-v0.1.json"
+    manifest = (
+        Path(__file__).resolve().parents[1] / "research" / "external-cohort-pinned-v0.1.json"
+    )
     expected = "30577f29eba1d99bdcbeababcf01a09bc2c1f26d98a760e306cbb43405379c22"
     assert validate_manifest(manifest, expected_sha256=expected) == []
