@@ -15,7 +15,8 @@ def test_report_contains_fail_closed_duplicate_advisory():
     ]
     report = _run_analysis("synthetic.md", segments)
     matches = [
-        item for item in report.safety_advisories
+        item
+        for item in report.safety_advisories
         if item["finding_reason"].startswith("exact duplicate")
     ]
     assert len(matches) == 1
