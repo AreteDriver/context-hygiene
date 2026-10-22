@@ -14,14 +14,14 @@ def _manifest(tmp_path: Path) -> Path:
         commit = f"{i + 1:040x}"
         records.append(
             {
-            "repository": repo,
-            "owner": f"owner{i}",
-            "path": "AGENTS.md",
-            "source_commit": commit,
-            "source_url": f"https://github.com/{repo}/blob/{commit}/AGENTS.md",
-            "sha256": f"{i + 1:064x}",
-            "bytes": 10,
-            "license_spdx": "MIT",
+                "repository": repo,
+                "owner": f"owner{i}",
+                "path": "AGENTS.md",
+                "source_commit": commit,
+                "source_url": f"https://github.com/{repo}/blob/{commit}/AGENTS.md",
+                "sha256": f"{i + 1:064x}",
+                "bytes": 10,
+                "license_spdx": "MIT",
             }
         )
     path = tmp_path / "manifest.json"
