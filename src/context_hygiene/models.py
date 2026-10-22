@@ -112,6 +112,7 @@ class HygieneReport(BaseModel):
     staleness_results: list[StalenessResult] = Field(default_factory=list)
     contradictions: list[Contradiction] = Field(default_factory=list)
     deadweight: list[DeadweightResult] = Field(default_factory=list)
+    safety_advisories: list[dict[str, str | int | bool]] = Field(default_factory=list)
     compression_candidates: list[CompressionCandidate] = Field(default_factory=list)
     tokens_recoverable: int = 0
     analyzed_at: datetime | None = None
