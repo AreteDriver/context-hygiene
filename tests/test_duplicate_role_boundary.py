@@ -1,7 +1,7 @@
 """Duplicate-detection regression tests for conversational role boundaries."""
 
-from context_hygiene.analyzers.deadweight import deadweight_fast
 from context_hygiene.models import Role, Segment
+from context_hygiene.analyzers.deadweight import deadweight_fast
 
 
 TEXT = "Preserve the full original source reference in the final report."
