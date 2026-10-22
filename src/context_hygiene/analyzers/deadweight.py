@@ -38,7 +38,7 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
     """Heuristic deadweight detection. Identifies messages with zero influence."""
     results: list[DeadweightResult] = []
 
-    for seg in segments:
+    for position, seg in enumerate(segments):
         content = seg.content.strip()
 
         # Check user deadweight patterns
@@ -68,9 +68,9 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
                     break
 
         # Duplicate content detection — exact match to earlier segment
-        if seg.index > 0:
-            for earlier in segments[: seg.index]:
-                if earlier.content == seg.content and seg.token_estimate > 5:
+        if position > 0 and seg.token_estimate > 5:
+            for earlier in segments[:position]:
+                if earlier.content == seg.content:
                     results.append(
                         DeadweightResult(
                             segment_index=seg.index,
