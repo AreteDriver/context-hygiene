@@ -5,6 +5,7 @@ No network calls, no upstream execution, no analyzer invocation.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 from pathlib import Path
@@ -13,8 +14,11 @@ _HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 _HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 
 
-def validate_manifest(path: Path) -> list[str]:
-    data = json.loads(path.read_text(encoding="utf-8"))
+def validate_manifest(path: Path, *, expected_sha256: str | None = None) -> list[str]:
+    raw = path.read_bytes()
+    if expected_sha256 and hashlib.sha256(raw).hexdigest() != expected_sha256:
+        return ["manifest byte-level SHA-256 mismatch"]
+    data = json.loads(raw)
     errors: list[str] = []
     records = data.get("records")
     if not isinstance(records, list) or len(records) != 20:
@@ -29,6 +33,8 @@ def validate_manifest(path: Path) -> list[str]:
         commit = record.get("source_commit", "")
         digest = record.get("sha256", "")
         file_path = record.get("path", "")
+        if not re.fullmatch(r"[^/]+/[^/]+", repo) or owner != repo.split("/")[0]:
+            errors.append(f"record {i}: invalid repository/owner")
         if repo in seen_repos or owner in seen_owners:
             errors.append(f"record {i}: repeated repository or owner")
         seen_repos.add(repo)
@@ -51,8 +57,9 @@ def validate_manifest(path: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", type=Path)
+    parser.add_argument("--expected-sha256", help="Exact SHA-256 of uncompressed manifest bytes")
     args = parser.parse_args()
-    errors = validate_manifest(args.manifest)
+    errors = validate_manifest(args.manifest, expected_sha256=args.expected_sha256)
     for error in errors:
         print(error)
     if errors:
