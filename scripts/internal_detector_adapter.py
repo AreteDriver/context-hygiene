@@ -1,7 +1,9 @@
-"""Adapter from production deadweight detector to internal exact-duplicate pair scoring.
+"""Internal pairwise scoring adapter for production duplicate findings.
 
-This evaluates a deliberately narrow synthetic fixture with at most one earlier
-identical segment per duplicate. It does not evaluate external benchmark files.
+Expand each production-flagged repeated message into all eligible earlier
+same-role exact matches for synthetic pairwise evaluation only. Production
+deadweight findings remain one actionable finding per repeated message.
+This does not establish accuracy on external benchmark files.
 """
 
 from context_hygiene.analyzers.deadweight import deadweight_fast
@@ -9,23 +11,27 @@ from context_hygiene.models import Role, Segment
 
 
 def predict_exact_duplicate_pairs(source_id: str, texts: list[str]) -> list[dict]:
-    """Convert exact-duplicate deadweight findings into unordered pair IDs."""
+    """Expand production-flagged duplicates to all matching earlier pairs."""
     segments = [
         Segment(index=i, role=Role.USER, content=text)
         for i, text in enumerate(texts)
     ]
-    results = deadweight_fast(segments)
+    flagged = {
+        finding.segment_index
+        for finding in deadweight_fast(segments)
+        if finding.reason.startswith("exact duplicate of segment ")
+    }
     pairs = []
-    for finding in results:
-        prefix = "exact duplicate of segment "
-        if not finding.reason.startswith(prefix):
+    for position, segment in enumerate(segments):
+        if segment.index not in flagged:
             continue
-        earlier = int(finding.reason.removeprefix(prefix))
-        pairs.append(
-            {
-                "source_id": source_id,
-                "block_a": str(earlier),
-                "block_b": str(finding.segment_index),
-            }
-        )
+        for earlier in segments[:position]:
+            if earlier.role == segment.role and earlier.content == segment.content:
+                pairs.append(
+                    {
+                        "source_id": source_id,
+                        "block_a": str(earlier.index),
+                        "block_b": str(segment.index),
+                    }
+                )
     return pairs
