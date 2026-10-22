@@ -1,11 +1,14 @@
 # context-hygiene
 
-[![PyPI version](https://badge.fury.io/py/context-hygiene.svg)](https://pypi.org/project/context-hygiene/)
+[![PyPI](https://img.shields.io/pypi/v/context-hygiene.svg)](https://pypi.org/project/context-hygiene/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
 
 **Context window hygiene analyzer for LLM conversations.**
 
 Heuristic detection of staleness, contradictions, deadweight, and compression opportunities in CLAUDE.md files, prompt chains, and agent configs. No LLM required for basic analysis.
+
+![ctx-hygiene demo](docs/assets/context-hygiene-demo.gif)
 
 ---
 
@@ -39,6 +42,32 @@ ctx-hygiene history
 
 # Check license and config
 ctx-hygiene status
+
+# Watch a file for changes (re-audit on save)
+ctx-hygiene audit CLAUDE.md --watch
+
+# Enforce grade threshold in CI
+ctx-hygiene audit CLAUDE.md --fail-under B
+
+# Output SARIF for GitHub Code Scanning
+ctx-hygiene audit CLAUDE.md --format sarif > results.sarif
+
+# Shell completions
+ctx-hygiene completion bash >> ~/.bashrc
+ctx-hygiene completion zsh >> ~/.zshrc
+ctx-hygiene completion fish | source
+```
+
+## GitHub Action
+
+Use context-hygiene in your workflows:
+
+```yaml
+- uses: AreteDriver/context-hygiene@v0.3.2
+  with:
+    files: "CLAUDE.md"
+    fail-under: "B"
+    format: "sarif"
 ```
 
 ## Pre-Commit Hook
@@ -49,12 +78,17 @@ Keep your context files clean before committing:
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/AreteDriver/context-hygiene
-    rev: v0.3.1
+    rev: v0.3.2
     hooks:
       - id: context-hygiene
 ```
 
-The hook runs `ctx-hygiene score` on all `*.md`, `*.txt`, and `*.jsonl` files. If the grade drops below a threshold, fail the build by adding a custom `args: ["score", "--fail-under", "B"]` (coming in v0.4.0).
+The hook runs `ctx-hygiene score` on all `*.md`, `*.txt`, and `*.jsonl` files. Fail the build if the grade drops below a threshold:
+
+```yaml
+- id: context-hygiene
+  args: ["audit", "--fail-under", "B"]
+```
 
 ## How It Works
 
@@ -111,7 +145,7 @@ Finds opportunities to condense without information loss:
 
 ## Fast vs. Deep Mode
 
-| | **Fast** (default) | **Deep** (Pro) |
+| | **Fast** (default) | **Deep** |
 |---|---|---|
 | **How it works** | Regex + heuristic scoring | LLM semantic analysis |
 | **Speed** | Milliseconds | Seconds to minutes |
@@ -122,29 +156,6 @@ Finds opportunities to condense without information loss:
 | **Compression** | Token thresholds | Content summarization |
 
 **Fast mode is sufficient for most use cases.** Deep mode is useful when heuristic patterns miss nuanced semantic drift.
-
----
-
-## Free vs. Pro
-
-| Feature | Free | Pro ($8/mo) |
-|---------|------|-------------|
-| `audit` (fast mode) | 10/month | Unlimited |
-| `score` / `clean` / `history` | Unlimited | Unlimited |
-| `audit --deep` (AI analysis) | — | Yes |
-| `watch` (live monitoring) | — | Yes |
-
-**[Subscribe Monthly ($8/mo)](https://buy.stripe.com/bJebJ11OHeBl3925kbgrS08)** | **[Subscribe Yearly ($69/yr)](https://buy.stripe.com/3cI6oH0KDal59xq5kbgrS09)**
-
-**All 5 Tools Bundle:** [Monthly ($29/mo)](https://buy.stripe.com/7sY9AT9h90Kv5ha27ZgrS0a) | [Yearly ($199/yr)](https://buy.stripe.com/9B6fZh9h98cX24YfYPgrS0b) — includes claudemd-forge, agent-lint, ai-spend, promptctl, context-hygiene
-
-After purchase, activate via:
-
-```bash
-export CONTEXT_HYGIENE_LICENSE="CTHG-XXXX-XXXX-XXXXXXXXXXXXXXXX"
-```
-
-Or save to `~/.config/context-hygiene/license`.
 
 ---
 
@@ -212,7 +223,19 @@ If you're looking for:
 
 ## License
 
-BSL-1.1 (Business Source License 1.1)
+BUSL-1.1 (Business Source License 1.1)
 
 The core heuristic analyzer is free to use and modify. AI-powered deep analysis
 (`--deep`) and live file monitoring (`watch`) require a Pro license.
+
+See [LICENSE](LICENSE) for full BUSL-1.1 terms.
+
+Safety advisories include additive `duplicate_reference`, `provenance`, and
+`dependencies` JSON fields. Exact duplicate references carry the earlier segment
+ID, role, and SHA-256 of the exact UTF-8 content. Advisory checks verify these
+against the current ordered segments; detector reason text is display-only.
+Legacy findings without structured references still load and fail closed.
+Provenance verification establishes local consistency, not source trust.
+Dependency references may resolve without proving discovery completeness:
+`review_status` remains `unknown`, and `authorized_to_mutate` remains `false`.
+No deletion or automatic consolidation is supported.

@@ -203,3 +203,50 @@ class TestSectionBasedParsing:
         segments = parser.parse(f)
         assert len(segments) == 1
         assert segments[0].role == Role.SYSTEM
+
+    def test_fenced_comments_do_not_split_sections(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "AGENTS.md"
+        f.write_text(
+            "## Agent History\n\n"
+            "```python\n"
+            "# Access useful information\n"
+            "history.urls()\n"
+            "## Not a Markdown section\n"
+            "history.errors()\n"
+            "```\n\n"
+            "## Structured Output\n\nUse a schema.\n"
+        )
+        segments = parser.parse(f)
+        assert len(segments) == 2
+        assert "```python\n# Access useful information" in segments[0].content
+        assert "history.errors()\n```" in segments[0].content
+        assert "## Not a Markdown section" in segments[0].content
+        assert segments[1].content.startswith("## Structured Output")
+
+    def test_tilde_and_long_fences(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "AGENTS.md"
+        f.write_text(
+            "# Intro\n"
+            "~~~~python\n"
+            "## Inside tilde fence\n"
+            "```\n"
+            "~~~~\n"
+            "````python\n"
+            "# Inside long backtick fence\n"
+            "```\n"
+            "## Still inside long fence\n"
+            "````\n"
+            "## Real heading\n"
+        )
+        segments = parser.parse(f)
+        assert len(segments) == 2
+        assert "~~~~python\n## Inside tilde fence" in segments[0].content
+        assert "## Still inside long fence\n````" in segments[0].content
+        assert segments[1].content == "## Real heading"
+
+    def test_fenced_only_headers_are_not_sections(self, parser: GenericParser, tmp_path: Path):
+        f = tmp_path / "AGENTS.md"
+        f.write_text("```python\n# comment only\n```\n")
+        segments = parser.parse(f)
+        assert len(segments) == 1
+        assert segments[0].role == Role.SYSTEM

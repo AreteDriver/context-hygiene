@@ -11,6 +11,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn
 from rich.table import Table
 
 from context_hygiene import __version__
+from context_hygiene.advisories import safety_advisories
 from context_hygiene.analyzers.compression import compression_fast
 from context_hygiene.analyzers.contradictions import contradictions_fast
 from context_hygiene.analyzers.deadweight import deadweight_fast
@@ -23,7 +24,11 @@ from context_hygiene.licensing import (
 )
 from context_hygiene.models import AnalysisMode, Grade, HygieneReport, Segment
 from context_hygiene.parsers.detect import parse_file
-from context_hygiene.reporter import format_report_json, format_report_rich
+from context_hygiene.reporter import (
+    format_report_json,
+    format_report_rich,
+    format_report_sarif,
+)
 from context_hygiene.store import AuditStore
 from context_hygiene.telemetry import track_command, track_pro_gate
 
@@ -120,6 +125,7 @@ def _run_deep_analysis(file_path: str) -> HygieneReport:
         staleness_results=staleness,
         contradictions=contras,
         deadweight=dead,
+        safety_advisories=safety_advisories(segments, dead),
         compression_candidates=comp,
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
@@ -179,6 +185,7 @@ def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> Hygi
         staleness_results=staleness,
         contradictions=contras,
         deadweight=dead,
+        safety_advisories=safety_advisories(segments, dead),
         compression_candidates=comp,
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
@@ -191,7 +198,11 @@ def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> Hygi
 @app.command()
 def audit(
     file: str = typer.Argument(..., help="Conversation file to audit"),
-    output_json: bool = typer.Option(False, "--json", help="Output as JSON"),
+    output_json: bool = typer.Option(
+        False,
+        "--json",
+        help="Output as JSON (deprecated, use --format)",
+    ),
     deep: bool = typer.Option(False, "--deep", help="Use LLM for deep analysis (Pro)"),
     fail_under: str = typer.Option(
         None,
@@ -199,6 +210,7 @@ def audit(
         help="Exit with error if grade is below threshold (A/B/C/D/F)",
     ),
     watch: bool = typer.Option(False, "--watch", "-w", help="Re-run when file changes"),
+    fmt: str = typer.Option("rich", "--format", help="Output format: rich, json, sarif"),
 ) -> None:
     """Full hygiene audit: staleness + contradictions + deadweight + compression."""
     track_command("audit")
@@ -219,8 +231,11 @@ def audit(
         return _run_deep_analysis(file) if deep else _run_analysis(file)
 
     def _render(report: HygieneReport) -> None:
-        if output_json:
+        output_fmt = "json" if output_json else fmt.lower()
+        if output_fmt == "json":
             print(format_report_json(report))
+        elif output_fmt == "sarif":
+            print(format_report_sarif(report))
         else:
             format_report_rich(report, console)
 

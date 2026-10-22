@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 
-from context_hygiene.models import DeadweightResult, Role, Segment
+from context_hygiene.models import DeadweightResult, DuplicateReference, Role, Segment
 
 _I = re.IGNORECASE
 
@@ -38,7 +39,7 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
     """Heuristic deadweight detection. Identifies messages with zero influence."""
     results: list[DeadweightResult] = []
 
-    for seg in segments:
+    for position, seg in enumerate(segments):
         content = seg.content.strip()
 
         # Check user deadweight patterns
@@ -67,14 +68,22 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
                     )
                     break
 
-        # Duplicate content detection — exact match to earlier segment
-        if seg.index > 0:
-            for earlier in segments[: seg.index]:
-                if earlier.content == seg.content and seg.token_estimate > 5:
+        # Duplicate content detection — exact match within the same role.
+        # Cross-role echoes (e.g. a user quoting an assistant) are not safe to discard.
+        if position > 0 and seg.token_estimate > 5:
+            for earlier in segments[:position]:
+                if earlier.role == seg.role and earlier.content == seg.content:
                     results.append(
                         DeadweightResult(
                             segment_index=seg.index,
                             reason=f"exact duplicate of segment {earlier.index}",
+                            duplicate_reference=DuplicateReference(
+                                earlier_index=earlier.index,
+                                role=seg.role,
+                                content_sha256=hashlib.sha256(
+                                    seg.content.encode("utf-8")
+                                ).hexdigest(),
+                            ),
                             tokens_recoverable=seg.token_estimate,
                         )
                     )

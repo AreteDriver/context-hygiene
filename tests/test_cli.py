@@ -57,6 +57,13 @@ class TestAudit:
             assert result.exit_code == 0
             assert "file_path" in result.output
 
+    def test_audit_sarif_output(self, generic_file: Path, tmp_config_dir: Path):
+        with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
+            result = runner.invoke(app, ["audit", str(generic_file), "--format", "sarif"])
+            assert result.exit_code == 0
+            assert "$schema" in result.output
+            assert "context-hygiene" in result.output
+
     def test_audit_nonexistent(self, tmp_config_dir: Path):
         with patch.dict("os.environ", {"CONTEXT_HYGIENE_DIR": str(tmp_config_dir)}):
             result = runner.invoke(app, ["audit", "/tmp/nope.md"])
