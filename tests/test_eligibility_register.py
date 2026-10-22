@@ -3,12 +3,15 @@
 import json
 from pathlib import Path
 
-from scripts.validate_eligibility_register import validate_register
-
-
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "research" / "external-cohort-pinned-v0.1.json"
 REGISTER = ROOT / "research" / "external-cohort-eligibility-register-v0.1.json"
+
+
+def validate_register(manifest, register):
+    from scripts.validate_eligibility_register import validate_register as validate
+
+    return validate(manifest, register)
 
 
 def test_current_pending_register_validates():
