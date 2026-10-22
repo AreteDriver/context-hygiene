@@ -67,10 +67,11 @@ def deadweight_fast(segments: list[Segment]) -> list[DeadweightResult]:
                     )
                     break
 
-        # Duplicate content detection — exact match to earlier segment
+        # Duplicate content detection — exact match within the same role.
+        # Cross-role echoes (e.g. a user quoting an assistant) are not safe to discard.
         if position > 0 and seg.token_estimate > 5:
             for earlier in segments[:position]:
-                if earlier.content == seg.content:
+                if earlier.role == seg.role and earlier.content == seg.content:
                     results.append(
                         DeadweightResult(
                             segment_index=seg.index,
