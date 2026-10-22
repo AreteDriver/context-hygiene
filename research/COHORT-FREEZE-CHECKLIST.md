@@ -10,6 +10,8 @@ The GitHub Actions `external-cohort-pinned` artifact is retained for only seven 
 - [ ] Confirm license and provenance for each file; do not infer content license solely from GitHub's repository-level SPDX field.
 - [ ] Check fork/archived status, ownership independence and instruction-file eligibility; log exclusions.
 - [ ] Preserve the complete sanitized manifest in Git with a checksum and explicit `pinned_unlabeled` status.
+- [ ] Run the eligibility validator with `--require-complete`; pending decisions, malformed reviewer provenance, duplicate reviewer identities and unadjudicated conflicts must fail closed.
+- [ ] Generate the deterministic metadata-only eligibility freeze with `scripts/freeze_eligible_cohort.py`; retain its printed SHA-256 in the review record.
 - [ ] Ground-truth section-pair labels are created independently of detector predictions and disagreements documented.
 - [ ] Freeze a manifest commit before any detector evaluation. Record analyzer source commit, dependency versions and exact commands.
 

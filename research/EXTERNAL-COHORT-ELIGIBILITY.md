@@ -14,10 +14,37 @@
 
 ## Review register
 
-For each manifest record, add one row with: repository, pinned commit, file-level license evidence URL, instruction-file eligibility (yes/no), block count, independence concerns, reviewer identity, review timestamp and disposition. A second reviewer should adjudicate disagreements where feasible.
+For each manifest record, preserve the pinned source fields and file-level license evidence.
+Both `reviewer_1` and `reviewer_2` must be structured, independent reviews containing:
+
+- `reviewer_id`, a timezone-aware `reviewed_at`, and an `eligible` or `ineligible` decision;
+- a nonempty rationale and one or more HTTPS `evidence_urls`;
+- `source_sha256_verified: true` after checking the pinned bytes.
+
+The `adjudication` object records `adjudicator_id`, timezone-aware `adjudicated_at`,
+the final decision and rationale, plus the factual `reviewer_disagreement` flag. When
+the two reviews disagree, the adjudicator must be distinct from both reviewers.
+Reviewer identifiers are provenance records, not authenticated identities; reviewer
+recruitment and identity verification remain a human responsibility.
 
 **Known watch item:** `Graphify-Labs/graphify` is only 563 bytes. Its length alone is not a reason to exclude it. Check whether it contains at least two meaningful instruction blocks. The original `Twigpine/openclaude` was replaced because its LICENSE states mixed proprietary/MIT provenance; see screening log.
 
 ## Freeze gate
 
 Do not mark this cohort frozen until (a) the exact uncompressed 11,130-byte manifest is committed unchanged and its SHA-256 `30577f29eba1d99bdcbeababcf01a09bc2c1f26d98a760e306cbb43405379c22` is independently verified, (b) every eligibility disposition is recorded, and (c) the candidate set is locked before detector evaluation. **No precision/recall or real-world efficacy claims are supported yet.**
+
+Run the complete gate and create the deterministic, metadata-only freeze with:
+
+```bash
+python scripts/validate_eligibility_register.py --require-complete \
+  research/external-cohort-pinned-v0.1.json \
+  research/external-cohort-eligibility-register-v0.1.json
+python scripts/freeze_eligible_cohort.py \
+  research/external-cohort-pinned-v0.1.json \
+  research/external-cohort-eligibility-register-v0.1.json \
+  research/external-cohort-eligible-freeze-v0.1.json
+```
+
+The freeze remains `frozen_unlabeled` and explicitly sets
+`detector_evaluation_authorized` to `false`. Blind pair labeling, adjudication and a
+separate label freeze are still required before detector evaluation.
