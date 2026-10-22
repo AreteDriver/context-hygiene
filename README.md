@@ -229,3 +229,13 @@ The core heuristic analyzer is free to use and modify. AI-powered deep analysis
 (`--deep`) and live file monitoring (`watch`) require a Pro license.
 
 See [LICENSE](LICENSE) for full BUSL-1.1 terms.
+
+Safety advisories include additive `duplicate_reference`, `provenance`, and
+`dependencies` JSON fields. Exact duplicate references carry the earlier segment
+ID, role, and SHA-256 of the exact UTF-8 content. Advisory checks verify these
+against the current ordered segments; detector reason text is display-only.
+Legacy findings without structured references still load and fail closed.
+Provenance verification establishes local consistency, not source trust.
+Dependency references may resolve without proving discovery completeness:
+`review_status` remains `unknown`, and `authorized_to_mutate` remains `false`.
+No deletion or automatic consolidation is supported.

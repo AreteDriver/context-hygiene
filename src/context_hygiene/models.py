@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sys
 from datetime import datetime
+from typing import Any, Literal
 
 if sys.version_info >= (3, 11):
     from enum import StrEnum
@@ -74,12 +75,37 @@ class Contradiction(BaseModel):
     confidence: float = 0.0  # 0-1
 
 
+class DuplicateReference(BaseModel):
+    """Detector evidence bound to a same-role exact-content pair."""
+
+    earlier_index: int
+    role: Role
+    content_sha256: str
+    referenced_indices: list[int] = Field(default_factory=list)
+
+
+class ProvenanceEvidence(BaseModel):
+    """Local consistency checks, not source trust or mutation authority."""
+
+    identity_verified: bool = False
+    exact_content_verified: bool = False
+
+
+class DependencyEvidence(BaseModel):
+    """Reference resolution never attests completeness of dependency discovery."""
+
+    referenced_indices: list[int] = Field(default_factory=list)
+    references_resolved: bool = False
+    review_status: Literal["unknown"] = "unknown"
+
+
 class DeadweightResult(BaseModel):
     """A segment identified as deadweight."""
 
     segment_index: int
     reason: str
     tokens_recoverable: int = 0
+    duplicate_reference: DuplicateReference | None = None
 
 
 class CompressionCandidate(BaseModel):
@@ -112,7 +138,7 @@ class HygieneReport(BaseModel):
     staleness_results: list[StalenessResult] = Field(default_factory=list)
     contradictions: list[Contradiction] = Field(default_factory=list)
     deadweight: list[DeadweightResult] = Field(default_factory=list)
-    safety_advisories: list[dict[str, str | int | bool]] = Field(default_factory=list)
+    safety_advisories: list[dict[str, Any]] = Field(default_factory=list)
     compression_candidates: list[CompressionCandidate] = Field(default_factory=list)
     tokens_recoverable: int = 0
     analyzed_at: datetime | None = None
