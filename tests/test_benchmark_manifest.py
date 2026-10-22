@@ -1,4 +1,5 @@
 """Regression tests for fail-closed cohort manifest validation."""
+
 import hashlib
 import json
 from pathlib import Path
@@ -11,7 +12,8 @@ def _manifest(tmp_path: Path) -> Path:
     for i in range(20):
         repo = f"owner{i}/project"
         commit = f"{i + 1:040x}"
-        records.append({
+        records.append(
+            {
             "repository": repo,
             "owner": f"owner{i}",
             "path": "AGENTS.md",
@@ -20,7 +22,8 @@ def _manifest(tmp_path: Path) -> Path:
             "sha256": f"{i + 1:064x}",
             "bytes": 10,
             "license_spdx": "MIT",
-        })
+            }
+        )
     path = tmp_path / "manifest.json"
     path.write_text(json.dumps({"status": "pinned_unlabeled_not_frozen", "records": records}))
     return path
