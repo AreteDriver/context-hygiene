@@ -3,7 +3,6 @@
 from context_hygiene.analyzers.deadweight import deadweight_fast
 from context_hygiene.models import Role, Segment
 
-
 TEXT = "Preserve the full original source reference in the final report."
 
 
