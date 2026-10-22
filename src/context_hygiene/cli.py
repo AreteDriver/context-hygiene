@@ -11,6 +11,7 @@ from rich.progress import BarColumn, Progress, SpinnerColumn, TaskProgressColumn
 from rich.table import Table
 
 from context_hygiene import __version__
+from context_hygiene.advisories import safety_advisories
 from context_hygiene.analyzers.compression import compression_fast
 from context_hygiene.analyzers.contradictions import contradictions_fast
 from context_hygiene.analyzers.deadweight import deadweight_fast
@@ -124,6 +125,7 @@ def _run_deep_analysis(file_path: str) -> HygieneReport:
         staleness_results=staleness,
         contradictions=contras,
         deadweight=dead,
+        safety_advisories=safety_advisories(segments, dead),
         compression_candidates=comp,
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
@@ -183,6 +185,7 @@ def _run_analysis(file_path: str, segments: list[Segment] | None = None) -> Hygi
         staleness_results=staleness,
         contradictions=contras,
         deadweight=dead,
+        safety_advisories=safety_advisories(segments, dead),
         compression_candidates=comp,
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
