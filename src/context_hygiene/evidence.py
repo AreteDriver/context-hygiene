@@ -68,10 +68,9 @@ def review_duplicate_evidence(
             == evidence.content_sha256
         )
 
-    dependencies_resolved = (
-        len(set(evidence.referenced_indices)) == len(evidence.referenced_indices)
-        and all(len(positions.get(index, [])) == 1 for index in evidence.referenced_indices)
-    )
+    dependencies_resolved = len(set(evidence.referenced_indices)) == len(
+        evidence.referenced_indices
+    ) and all(len(positions.get(index, [])) == 1 for index in evidence.referenced_indices)
     decision = classify_duplicate(
         segment_index=evidence.candidate_index,
         role=role,
