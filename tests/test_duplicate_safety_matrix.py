@@ -33,7 +33,7 @@ def duplicates(segments):
 def test_duplicate_boundaries(roles, texts, expected):
     segments = [
         Segment(index=index, role=role, content=text)
-        for index, role, text in zip((10, 90), roles, texts)
+        for index, role, text in zip((10, 90), roles, texts, strict=True)
     ]
     assert duplicates(segments) == expected
 
