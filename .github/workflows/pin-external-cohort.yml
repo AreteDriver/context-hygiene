@@ -1,0 +1,35 @@
+name: External cohort source pinning
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/pin_benchmark_cohort.py'
+      - 'research/external-cohort-candidates-v0.1.json'
+      - '.github/workflows/pin-external-cohort.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.12'
+      - name: Pin candidate inputs to immutable commits and SHA-256
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python scripts/pin_benchmark_cohort.py \
+            research/external-cohort-candidates-v0.1.json \
+            --output external-cohort-pinned.json
+      - name: Retain sanitized manifest
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: external-cohort-pinned
+          path: external-cohort-pinned.json
+          if-no-files-found: error
+          retention-days: 7

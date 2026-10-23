@@ -18,6 +18,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
+from context_hygiene.advisories import safety_advisories
 from context_hygiene.analyzers.compression import compression_fast
 from context_hygiene.analyzers.contradictions import contradictions_fast
 from context_hygiene.analyzers.deadweight import deadweight_fast
@@ -124,6 +125,7 @@ def _run_analysis(path: Path, segments: list[Segment]) -> HygieneReport:
         staleness_results=staleness,
         contradictions=contras,
         deadweight=dead,
+        safety_advisories=safety_advisories(segments, dead),
         compression_candidates=comp,
         tokens_recoverable=tokens_recoverable,
         analyzed_at=datetime.now(timezone.utc),
