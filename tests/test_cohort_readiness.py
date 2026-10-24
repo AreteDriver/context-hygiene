@@ -61,8 +61,6 @@ def test_cli_malformed_json_fails_closed(tmp_path, monkeypatch, capsys):
 
     path = tmp_path / "broken.json"
     path.write_text("{invalid", encoding="utf-8")
-    monkeypatch.setattr(
-        "sys.argv", ["cohort_readiness", str(MANIFEST), str(path)]
-    )
+    monkeypatch.setattr("sys.argv", ["cohort_readiness", str(MANIFEST), str(path)])
     assert main() == 1
     assert '"status": "blocked"' in capsys.readouterr().out
