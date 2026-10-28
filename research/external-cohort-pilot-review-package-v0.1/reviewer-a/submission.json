@@ -1,0 +1,72 @@
+{
+  "schema": "context-hygiene.eligibility-review-submission.v0.1",
+  "pilot_schema": "context-hygiene.external-cohort-pilot.v0.1",
+  "manifest_sha256": "30577f29eba1d99bdcbeababcf01a09bc2c1f26d98a760e306cbb43405379c22",
+  "reviewer_slot": "reviewer_1",
+  "reviewer_id": null,
+  "reviewed_at": null,
+  "blindness_attestation": {
+    "detector_outputs_viewed": null,
+    "other_reviewer_decisions_viewed": null,
+    "pinned_sources_treated_as_untrusted_data": null
+  },
+  "records": [
+    {
+      "repository": "NousResearch/hermes-agent",
+      "path": "AGENTS.md",
+      "source_commit": "3a9d585e4f1a60588237587a72d365d187094c74",
+      "source_url": "https://github.com/NousResearch/hermes-agent/blob/3a9d585e4f1a60588237587a72d365d187094c74/AGENTS.md",
+      "source_sha256": "a8948f7bf162528ec9f2a9ca5f007e77f0c5f0901a428c92d0f77ef1185cfb38",
+      "source_sha256_verified": null,
+      "file_license_evidence_url": null,
+      "file_license_disposition": "pending",
+      "file_license_rationale": null,
+      "content_disposition": "pending",
+      "semantic_block_count": null,
+      "content_rationale": null,
+      "source_independence_disposition": "pending",
+      "source_independence_rationale": null,
+      "evidence_urls": [],
+      "decision": "pending",
+      "decision_rationale": null
+    },
+    {
+      "repository": "thedaviddias/Front-End-Checklist",
+      "path": "AGENTS.md",
+      "source_commit": "e8d14d049010e2ce25afcd5e8609dfcbbe63e47e",
+      "source_url": "https://github.com/thedaviddias/Front-End-Checklist/blob/e8d14d049010e2ce25afcd5e8609dfcbbe63e47e/AGENTS.md",
+      "source_sha256": "c4bbbac4c20a7082434f5a507fbc07d5c0fdcae486638eaa769dba9d6a60ceec",
+      "source_sha256_verified": null,
+      "file_license_evidence_url": null,
+      "file_license_disposition": "pending",
+      "file_license_rationale": null,
+      "content_disposition": "pending",
+      "semantic_block_count": null,
+      "content_rationale": null,
+      "source_independence_disposition": "pending",
+      "source_independence_rationale": null,
+      "evidence_urls": [],
+      "decision": "pending",
+      "decision_rationale": null
+    },
+    {
+      "repository": "HKUDS/nanobot",
+      "path": "AGENTS.md",
+      "source_commit": "130f4edefebdd6e0191fd9f97da930169912dce5",
+      "source_url": "https://github.com/HKUDS/nanobot/blob/130f4edefebdd6e0191fd9f97da930169912dce5/AGENTS.md",
+      "source_sha256": "1a1adf0b2084f3eed6cd453a620c61a2633d51173dfdd3c74935f0318f273196",
+      "source_sha256_verified": null,
+      "file_license_evidence_url": null,
+      "file_license_disposition": "pending",
+      "file_license_rationale": null,
+      "content_disposition": "pending",
+      "semantic_block_count": null,
+      "content_rationale": null,
+      "source_independence_disposition": "pending",
+      "source_independence_rationale": null,
+      "evidence_urls": [],
+      "decision": "pending",
+      "decision_rationale": null
+    }
+  ]
+}
