@@ -1,0 +1,10 @@
+{
+  "schema": "context-hygiene.external-cohort-pilot.v0.1",
+  "status": "awaiting_independent_review",
+  "manifest_sha256": "30577f29eba1d99bdcbeababcf01a09bc2c1f26d98a760e306cbb43405379c22",
+  "repositories": [
+    "NousResearch/hermes-agent",
+    "thedaviddias/Front-End-Checklist",
+    "HKUDS/nanobot"
+  ]
+}
